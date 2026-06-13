@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报名管理 - 高校实训管理平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: #fff; color: #1d1d1f; }
+        .content-card { background: #fff; padding: 32px; min-height: 100vh; }
+        .card-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e5e5e7; }
+        .card-title { font-size: 24px; font-weight: 600; color: #1d1d1f; margin-bottom: 4px; }
+        .card-subtitle { font-size: 14px; color: #86868b; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 16px; flex-wrap: wrap; }
+        .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 12px; }
+        .search-input, .search-select { border: 1px solid #d1d1d6; border-radius: 8px; padding: 8px 12px; font-size: 14px; }
+        .search-input { min-width: 200px; }
+        .btn-icon { border: 1px solid #d1d1d6; background: #fff; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; color: #007AFF; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-icon:hover { background: #f5f5f7; }
+        .btn-icon-primary { background: #007AFF; color: #fff; border-color: #007AFF; }
+        .btn-icon-danger { color: #FF3B30; }
+        .btn-icon-danger:hover { background: #ffe5e5; }
+        .table th { font-weight: 600; font-size: 13px; border-bottom: 2px solid #e5e5e7; padding: 12px 16px; background: #fafafa; }
+        .table td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+        .table tbody tr:hover { background: #f8f9fa; }
+        .status-badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .status-1 { background: #fff3e0; color: #f57c00; }
+        .status-2 { background: #e6f7ed; color: #00A862; }
+        .status-3 { background: #ffe5e5; color: #FF3B30; }
+        .btn-action { border: none; background: none; cursor: pointer; padding: 6px 10px; border-radius: 6px; font-size: 13px; }
+        .btn-edit { color: #007AFF; }
+        .btn-edit:hover { background: #e8f0ff; }
+        .btn-delete { color: #FF3B30; }
+        .btn-delete:hover { background: #ffe5e5; }
+        .pagination { justify-content: flex-end; margin-top: 20px; }
+        .page-link { border: none; color: #007AFF; padding: 8px 12px; margin: 0 2px; border-radius: 6px; }
+        .page-item.active .page-link { background: #007AFF; color: #fff; }
+        .modal-content { border: none; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
+        .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-radius: 12px 12px 0 0; padding: 20px 24px; }
+        .modal-body { padding: 24px; }
+        .form-label { font-weight: 500; margin-bottom: 8px; }
+        .form-control, .form-select { border: 1px solid #d1d1d6; border-radius: 8px; padding: 10px 12px; }
+        .form-control:focus, .form-select:focus { border-color: #007AFF; box-shadow: 0 0 0 3px rgba(0,122,255,0.1); }
+        .btn-modal { padding: 10px 24px; border-radius: 8px; font-size: 14px; border: none; cursor: pointer; }
+        .btn-modal-primary { background: #007AFF; color: #fff; }
+        .btn-modal-secondary { background: #f5f5f7; }
+        .loading, .empty-state { text-align: center; padding: 40px; color: #86868b; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading i { font-size: 32px; color: #007AFF; animation: spin 1s linear infinite; }
+    </style>
+</head>
+<body>
+    <div class="content-card">
+        <div class="card-header">
+            <h1 class="card-title"><i class="fas fa-clipboard-list me-2"></i>报名管理</h1>
+            <p class="card-subtitle">管理学生实训报名，包括报名审核、状态跟踪等</p>
+        </div>
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <select class="search-select" id="planSelect"><option value="">全部开班</option></select>
+                <select class="search-select" id="statusSelect">
+                    <option value="">全部状态</option>
+                    <option value="1">待审核</option>
+                    <option value="2">审核通过</option>
+                    <option value="3">已驳回</option>
+                </select>
+                <button class="btn-icon" onclick="searchData()"><i class="fas fa-search"></i> 查询</button>
+                <button class="btn-icon" onclick="resetSearch()"><i class="fas fa-redo"></i> 重置</button>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn-icon btn-icon-primary" onclick="showAddModal()"><i class="fas fa-plus"></i> 新增报名</button>
+                <button class="btn-icon btn-icon-danger" id="batchDeleteBtn" onclick="batchDelete()" style="display:none;"><i class="fas fa-trash"></i> 批量删除</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width:50px;"><input type="checkbox" class="form-check-input" id="checkAll" onchange="toggleCheckAll()"></th>
+                        <th>开班名称</th>
+                        <th>学生姓名</th>
+                        <th>学号</th>
+                        <th>报名时间</th>
+                        <th>审核状态</th>
+                        <th>审核时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"><tr><td colspan="8" class="loading"><i class="fas fa-spinner"></i></td></tr></tbody>
+            </table>
+        </div>
+        <nav><ul class="pagination" id="pagination"></ul></nav>
+    </div>
+
+    <div class="modal fade" id="enrollModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">新增报名</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="enrollForm">
+                        <input type="hidden" id="enrollId">
+                        <div class="mb-3">
+                            <label class="form-label">实训开班 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="planId" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">学生 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="stuId" required>
+                                <option value="">请选择学生</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal btn-modal-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn-modal btn-modal-primary" onclick="saveEnroll()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="auditModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">报名审核</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="auditEnrollId">
+                    <div class="mb-3">
+                        <label class="form-label">开班名称</label>
+                        <input type="text" class="form-control" id="auditPlanName" readonly style="background:#f5f5f7;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">学生信息</label>
+                        <input type="text" class="form-control" id="auditStudentInfo" readonly style="background:#f5f5f7;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">审核备注</label>
+                        <textarea class="form-control" id="auditRemark" rows="3" placeholder="请输入审核意见（可选）"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal btn-modal-secondary" onclick="confirmReject()" style="color:#FF3B30;border:1px solid #FF3B30;">驳回</button>
+                    <button type="button" class="btn-modal btn-modal-primary" onclick="confirmAudit()">审核通过</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        let currentPage = 1, pageSize = 10, total = 0, selectedIds = [];
+        document.addEventListener('DOMContentLoaded', () => { loadPlans(); loadStudents(); loadData(); });
+        function loadPlans() {
+            axios.get('/api/plan/all').then(res => {
+                if (res.data.code === 200) {
+                    const options = res.data.data.map(p => `<option value="${p.id}">${p.planName}</option>`).join('');
+                    document.getElementById('planSelect').innerHTML = '<option value="">全部开班</option>' + options;
+                    document.getElementById('planId').innerHTML = '<option value="">请选择开班</option>' + options;
+                }
+            });
+        }
+        function loadStudents(targetId) {
+            axios.get('/api/student/all').then(res => {
+                if (res.data.code === 200) {
+                    const options = res.data.data.map(s => `<option value="${s.id}">${s.studentNo} - ${s.studentName}</option>`).join('');
+                    document.getElementById('stuId').innerHTML = '<option value="">请选择学生</option>' + options;
+                    if (targetId) document.getElementById('stuId').value = targetId;
+                }
+            });
+        }
+        function loadData() {
+            axios.get('/api/enroll/list', { params: { pageNum: currentPage, pageSize, planId: document.getElementById('planSelect').value, auditStatus: document.getElementById('statusSelect').value } }).then(res => {
+                if (res.data.code === 200) { renderTable(res.data.data.list); total = res.data.data.total; renderPagination(); }
+            });
+        }
+        function renderTable(list) {
+            const tbody = document.getElementById('tableBody');
+            if (!list || list.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i><p>暂无数据</p></td></tr>'; return; }
+            const statusMap = {1: '待审核', 2: '审核通过', 3: '已驳回'};
+            tbody.innerHTML = list.map(item => {
+                const auditBtn = item.auditStatus === 1
+                    ? `<button class="btn-action" style="color:#00A862;" onclick="showAuditModal(${item.id})"><i class="fas fa-check-circle"></i> 审核</button>`
+                    : `<span class="text-muted" style="font-size:12px;">已审核</span>`;
+                return `<tr><td><input type="checkbox" class="form-check-input row-checkbox" value="${item.id}" onchange="updateSelected()"></td><td>${item.planName}</td><td>${item.studentName}</td><td>${item.studentNo}</td><td>${formatTime(item.enrollTime)}</td><td><span class="status-badge status-${item.auditStatus}">${statusMap[item.auditStatus]}</span></td><td>${item.auditTime?formatTime(item.auditTime):'-'}</td><td>${auditBtn}<button class="btn-action btn-edit" onclick="showEditModal(${item.id})"><i class="fas fa-edit"></i> 编辑</button><button class="btn-action btn-delete" onclick="deleteEnroll(${item.id})"><i class="fas fa-trash"></i> 删除</button></td></tr>`;
+            }).join('');
+        }
+        function renderPagination() {
+            const totalPages = Math.ceil(total / pageSize);
+            const pagination = document.getElementById('pagination');
+            if (totalPages <= 1) { pagination.innerHTML = ''; return; }
+            let html = `<li class="page-item ${currentPage===1?'disabled':''}"><a class="page-link" href="#" onclick="changePage(${currentPage-1})">上一页</a></li>`;
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) html += `<li class="page-item ${i===currentPage?'active':''}"><a class="page-link" href="#" onclick="changePage(${i})">${i}</a></li>`;
+                else if (Math.abs(i - currentPage) === 3) html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            }
+            html += `<li class="page-item ${currentPage===totalPages?'disabled':''}"><a class="page-link" href="#" onclick="changePage(${currentPage+1})">下一页</a></li>`;
+            pagination.innerHTML = html;
+        }
+        function changePage(page) { if (page < 1) return; currentPage = page; loadData(); }
+        function searchData() { currentPage = 1; loadData(); }
+        function resetSearch() { document.getElementById('planSelect').value = ''; document.getElementById('statusSelect').value = ''; currentPage = 1; loadData(); }
+        function showAddModal() { document.getElementById('modalTitle').textContent = '新增报名'; document.getElementById('enrollForm').reset(); document.getElementById('enrollId').value = ''; loadStudents(); new bootstrap.Modal(document.getElementById('enrollModal')).show(); }
+        function showEditModal(id) {
+            axios.get(`/api/enroll/${id}`).then(res => {
+                if (res.data.code === 200) {
+                    document.getElementById('modalTitle').textContent = '编辑报名';
+                    document.getElementById('enrollId').value = res.data.data.id;
+                    document.getElementById('planId').value = res.data.data.planId;
+                    loadStudents(res.data.data.stuId);
+                    new bootstrap.Modal(document.getElementById('enrollModal')).show();
+                }
+            });
+        }
+        function saveEnroll() {
+            const id = document.getElementById('enrollId').value;
+            const data = { planId: parseInt(document.getElementById('planId').value), stuId: parseInt(document.getElementById('stuId').value) };
+            if (!data.planId || !data.stuId) { alert('请填写必填字段'); return; }
+            const method = id ? 'put' : 'post';
+            if (id) data.id = parseInt(id);
+            axios[method]('/api/enroll', data).then(res => { if (res.data.code === 200) { alert(id ? '修改成功' : '报名成功'); bootstrap.Modal.getInstance(document.getElementById('enrollModal')).hide(); loadData(); } else { alert(res.data.message || '操作失败'); } });
+        }
+        function deleteEnroll(id) { if (!confirm('确定要删除该报名吗？')) return; axios.delete(`/api/enroll/${id}`).then(res => { if (res.data.code === 200) { alert('删除成功'); loadData(); } else { alert(res.data.message || '删除失败'); } }); }
+        function showAuditModal(id) {
+            axios.get(`/api/enroll/${id}`).then(res => {
+                if (res.data.code === 200) {
+                    const data = res.data.data;
+                    document.getElementById('auditEnrollId').value = data.id;
+                    document.getElementById('auditPlanName').value = data.planName || '-';
+                    document.getElementById('auditStudentInfo').value = (data.studentNo || '') + ' - ' + (data.studentName || '');
+                    document.getElementById('auditRemark').value = '';
+                    new bootstrap.Modal(document.getElementById('auditModal')).show();
+                }
+            });
+        }
+        function confirmAudit() {
+            const id = document.getElementById('auditEnrollId').value;
+            if (!id) return;
+            const remark = document.getElementById('auditRemark').value;
+            if (!confirm('确定审核通过该报名吗？')) return;
+            axios.put(`/api/enroll/audit/${id}`, { auditRemark: remark }).then(res => {
+                if (res.data.code === 200) {
+                    alert('审核通过');
+                    bootstrap.Modal.getInstance(document.getElementById('auditModal')).hide();
+                    loadData();
+                } else {
+                    alert(res.data.message || '审核失败');
+                }
+            });
+        }
+        function confirmReject() {
+            const id = document.getElementById('auditEnrollId').value;
+            if (!id) return;
+            const remark = document.getElementById('auditRemark').value;
+            if (!confirm('确定驳回该报名吗？')) return;
+            axios.put(`/api/enroll/reject/${id}`, { auditRemark: remark }).then(res => {
+                if (res.data.code === 200) {
+                    alert('已驳回');
+                    bootstrap.Modal.getInstance(document.getElementById('auditModal')).hide();
+                    loadData();
+                } else {
+                    alert(res.data.message || '驳回失败');
+                }
+            });
+        }
+        function toggleCheckAll() { document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = document.getElementById('checkAll').checked); updateSelected(); }
+        function updateSelected() { selectedIds = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value); document.getElementById('batchDeleteBtn').style.display = selectedIds.length > 0 ? 'inline-flex' : 'none'; }
+        function batchDelete() { if (selectedIds.length === 0) return; if (!confirm(`确定要删除选中的 ${selectedIds.length} 条报名吗？`)) return; axios.delete('/api/enroll/batch', { data: selectedIds.map(id => parseInt(id)) }).then(res => { if (res.data.code === 200) { alert('批量删除成功'); document.getElementById('checkAll').checked = false; loadData(); } else { alert(res.data.message || '批量删除失败'); } }); }
+        function formatTime(time) { if (!time) return '-'; const date = new Date(time); return date.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }); }
+    </script>
+</body>
+</html>

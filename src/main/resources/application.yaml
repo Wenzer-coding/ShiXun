@@ -1,0 +1,154 @@
+#配置数据库连接
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://localhost:3307/eutmp?serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # Druid数据源配置
+    druid:
+      # 初始连接数
+      initial-size: 5
+      # 最小空闲连接数
+      min-idle: 5
+      # 最大活跃连接数
+      max-active: 20
+      # 获取连接等待超时的时间(ms)
+      max-wait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 300000
+      # 测试连接是否可用的SQL
+      validation-query: SELECT 1
+      # 建议配置为true，不影响性能，并且保证安全性
+      test-while-idle: true
+      # 申请连接时执行validationQuery检测连接是否有效
+      test-on-borrow: false
+      # 归还连接时执行validationQuery检测连接是否有效
+      test-on-return: false
+      # 是否缓存preparedStatement，也就是PSCache
+      pool-prepared-statements: true
+      # 要启用PSCache，必须配置大于0，当大于0时，poolPreparedStatements自动触发修改为true
+      max-pool-prepared-statement-per-connection-size: 20
+      # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'表示防火墙
+      filters: stat,wall
+      # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      # 配置DruidStatFilter
+      web-stat-filter:
+        enabled: true
+        url-pattern: "/*"
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
+      # 配置DruidStatViewServlet
+      stat-view-servlet:
+        enabled: true
+        url-pattern: "/druid/*"
+        login-username: admin
+        login-password: admin
+  # Thymeleaf模板配置
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false
+  # DevTools热启动配置
+  devtools:
+    restart:
+      enabled: true
+      # 设置重启的目录
+      additional-paths: src/main/java
+      # 排除目录，不进行热部署
+      exclude: static/**,public/**
+  # 邮件服务配置
+  mail:
+    # SMTP服务器地址（以QQ邮箱为例）
+    host: smtp.qq.com
+    # SMTP端口（使用SSL端口465更稳定）
+    port: 465
+    # 发件人邮箱（需要改为你的邮箱）
+    username: 1045836531@qq.com
+    # 授权码（不是密码，需要在邮箱设置中生成）
+    password: jbixhgckmghtbejg
+    # 默认编码
+    default-encoding: UTF-8
+    # 协议
+    protocol: smtps
+    # 连接超时时间（增加到30秒）
+    connectiontimeout: 30000
+    # 写入超时时间（增加到30秒）
+    writetimeout: 30000
+    # 读取超时时间（增加到30秒）
+    timeout: 30000
+    # SSL配置
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: false
+            required: false
+          ssl:
+            enable: true
+            trust: smtp.qq.com
+        debug: true
+#配置mybatis
+mybatis:
+  mapper-locations: classpath:mapper/*Mapper.xml
+  #配置包别名称
+  type-aliases-package: com.eutmp.app.bean
+  #配置驼峰命名
+  configuration:
+    map-underscore-to-camel-case: true
+    # 开启SQL日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+#配置日志输出
+logging:
+  level:
+    # Mapper接口日志 - 显示SQL执行情况
+    com.eutmp.app.mapper: debug
+    # MyBatis框架日志
+    org.mybatis: debug
+    # SQL语句详细日志
+    org.apache.ibatis: debug
+    # 显示SQL参数
+    org.apache.ibatis.type: trace
+    # 显示SQL执行结果
+    java.sql.Connection: debug
+    java.sql.Statement: debug
+    java.sql.PreparedStatement: debug
+
+# PageHelper分页配置
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
+
+# Sa-Token配置
+sa-token:
+  # token名称 (同时也是cookie名称)
+  token-name: satoken
+  # token有效期，单位s 默认30天, -1代表永不过期
+  timeout: 2592000
+  # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
+  is-concurrent: false
+  # 在多人登录同一账号时，是否共用一个token (为true时所有登录共用一个token, 为false时每次登录新建一个token)
+  is-share: false
+  # token风格
+  token-style: uuid
+  # 是否输出操作日志
+  is-log: true
+  # 是否从cookie中读取token
+  is-read-cookie: true
+  # 是否从head中读取token
+  is-read-header: false
+  # 未登录时的跳转地址
+  not-login: /login
+  # 账号被封禁时的跳转地址
+  disable: /login?message=account_disabled
+  # 账号被踢下线时的跳转地址
+  kickout: /login?message=kicked_out

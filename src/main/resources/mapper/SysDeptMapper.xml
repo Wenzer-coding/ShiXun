@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eutmp.app.mapper.SysDeptMapper">
+    
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.eutmp.app.bean.SysDept">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="parent_id" property="parentId" jdbcType="BIGINT"/>
+        <result column="dept_name" property="deptName" jdbcType="VARCHAR"/>
+        <result column="sort" property="sort" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, parent_id, dept_name, sort, status, create_time, update_time
+    </sql>
+    
+    <!-- 根据ID查询 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_dept
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 查询所有 -->
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_dept
+        ORDER BY sort ASC
+    </select>
+    
+    <!-- 根据父部门ID查询 -->
+    <select id="selectByParentId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_dept
+        WHERE parent_id = #{parentId}
+        ORDER BY sort ASC
+    </select>
+    
+    <!-- 根据部门名称模糊查询 -->
+    <select id="selectByDeptName" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_dept
+        <where>
+            <if test="deptName != null and deptName != ''">
+                AND dept_name LIKE CONCAT('%', #{deptName}, '%')
+            </if>
+        </where>
+        ORDER BY sort ASC
+    </select>
+    
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.eutmp.app.bean.SysDept" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_dept (
+            parent_id, dept_name, sort, status, create_time, update_time
+        ) VALUES (
+            #{parentId}, #{deptName}, #{sort}, #{status}, #{createTime}, #{updateTime}
+        )
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="update" parameterType="com.eutmp.app.bean.SysDept">
+        UPDATE sys_dept
+        <set>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="deleteById">
+        DELETE FROM sys_dept WHERE id = #{id}
+    </delete>
+    
+</mapper>

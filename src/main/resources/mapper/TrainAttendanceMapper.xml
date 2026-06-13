@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eutmp.app.mapper.TrainAttendanceMapper">
+    
+    <resultMap id="BaseResultMap" type="com.eutmp.app.bean.TrainAttendance">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="stu_id" property="stuId"/>
+        <result column="attend_date" property="attendDate"/>
+        <result column="sign_time" property="signTime"/>
+        <result column="sign_status" property="signStatus"/>
+        <result column="leave_remark" property="leaveRemark"/>
+        <result column="create_user" property="createUser"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="plan_name" property="planName"/>
+        <result column="student_name" property="studentName"/>
+        <result column="student_no" property="studentNo"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        a.id, a.plan_id, a.stu_id, a.attend_date, a.sign_time, a.sign_status, a.leave_remark, a.create_user, a.create_time, a.update_time, p.plan_name as plan_name, s.student_name as student_name, s.student_no as student_no
+    </sql>
+    
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM train_attendance a LEFT JOIN train_plan p ON a.plan_id = p.id LEFT JOIN student s ON a.stu_id = s.id WHERE a.id = #{id}
+    </select>
+    
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM train_attendance a LEFT JOIN train_plan p ON a.plan_id = p.id LEFT JOIN student s ON a.stu_id = s.id
+        <where>
+            <if test="planId != null">AND a.plan_id = #{planId}</if>
+            <if test="signStatus != null">AND a.sign_status = #{signStatus}</if>
+            <if test="attendDate != null">AND a.attend_date = #{attendDate}</if>
+        </where>
+        ORDER BY a.attend_date DESC, a.create_time DESC
+    </select>
+    
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO train_attendance (plan_id, stu_id, attend_date, sign_time, sign_status, leave_remark, create_user, create_time, update_time)
+        VALUES (#{planId}, #{stuId}, #{attendDate}, #{signTime}, #{signStatus}, #{leaveRemark}, #{createUser}, #{createTime}, #{updateTime})
+    </insert>
+    
+    <update id="update">
+        UPDATE train_attendance
+        <set>
+            <if test="planId != null">plan_id = #{planId},</if>
+            <if test="stuId != null">stu_id = #{stuId},</if>
+            <if test="attendDate != null">attend_date = #{attendDate},</if>
+            <if test="signTime != null">sign_time = #{signTime},</if>
+            <if test="signStatus != null">sign_status = #{signStatus},</if>
+            <if test="leaveRemark != null">leave_remark = #{leaveRemark},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="deleteById">DELETE FROM train_attendance WHERE id = #{id}</delete>
+    
+    <delete id="deleteByIds">
+        DELETE FROM train_attendance WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">#{id}</foreach>
+    </delete>
+    
+    <select id="checkAttendanceUnique" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM train_attendance a LEFT JOIN train_plan p ON a.plan_id = p.id LEFT JOIN student s ON a.stu_id = s.id WHERE a.plan_id = #{planId} AND a.stu_id = #{stuId} AND a.attend_date = #{attendDate} LIMIT 1
+    </select>
+
+    <select id="selectByPlanIdAndDate" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM train_attendance a LEFT JOIN train_plan p ON a.plan_id = p.id LEFT JOIN student s ON a.stu_id = s.id WHERE a.plan_id = #{planId} AND a.attend_date = #{attendDate} ORDER BY a.sign_time ASC
+    </select>
+
+    <select id="selectByStudentNoAndPlanDate" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM train_attendance a LEFT JOIN train_plan p ON a.plan_id = p.id LEFT JOIN student s ON a.stu_id = s.id WHERE s.student_no = #{studentNo} AND a.plan_id = #{planId} AND a.attend_date = #{attendDate} LIMIT 1
+    </select>
+
+</mapper>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eutmp.app.mapper.SysOperLogMapper">
+    
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.eutmp.app.bean.SysOperLog">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="username" property="username" jdbcType="VARCHAR"/>
+        <result column="nick_name" property="nickName" jdbcType="VARCHAR"/>
+        <result column="dept_id" property="deptId" jdbcType="BIGINT"/>
+        <result column="oper_module" property="operModule" jdbcType="VARCHAR"/>
+        <result column="oper_type" property="operType" jdbcType="TINYINT"/>
+        <result column="oper_desc" property="operDesc" jdbcType="VARCHAR"/>
+        <result column="request_url" property="requestUrl" jdbcType="VARCHAR"/>
+        <result column="request_method" property="requestMethod" jdbcType="VARCHAR"/>
+        <result column="oper_ip" property="operIp" jdbcType="VARCHAR"/>
+        <result column="oper_params" property="operParams" jdbcType="VARCHAR"/>
+        <result column="json_result" property="jsonResult" jdbcType="VARCHAR"/>
+        <result column="cost_time" property="costTime" jdbcType="BIGINT"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="error_msg" property="errorMsg" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, user_id, username, nick_name, dept_id, oper_module, oper_type, oper_desc,
+        request_url, request_method, oper_ip, oper_params, json_result, cost_time,
+        status, error_msg, create_time
+    </sql>
+    
+    <!-- 根据ID查询 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_oper_log
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 查询所有 -->
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_oper_log
+        ORDER BY create_time DESC
+    </select>
+    
+    <!-- 根据用户ID查询 -->
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_oper_log
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+    
+    <!-- 条件查询（用于分页） -->
+    <select id="selectByCondition" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_oper_log
+        <where>
+            <if test="operModule != null and operModule != ''">
+                AND oper_module = #{operModule}
+            </if>
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="createTime != null and createTime != ''">
+                AND DATE(create_time) = #{createTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+    
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.eutmp.app.bean.SysOperLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_oper_log (
+            user_id, username, nick_name, dept_id, oper_module, oper_type, oper_desc,
+            request_url, request_method, oper_ip, oper_params, json_result, cost_time,
+            status, error_msg, create_time
+        ) VALUES (
+            #{userId}, #{username}, #{nickName}, #{deptId}, #{operModule}, #{operType}, #{operDesc},
+            #{requestUrl}, #{requestMethod}, #{operIp}, #{operParams}, #{jsonResult}, #{costTime},
+            #{status}, #{errorMsg}, #{createTime}
+        )
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="update" parameterType="com.eutmp.app.bean.SysOperLog">
+        UPDATE sys_oper_log
+        <set>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="username != null">username = #{username},</if>
+            <if test="nickName != null">nick_name = #{nickName},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="operModule != null">oper_module = #{operModule},</if>
+            <if test="operType != null">oper_type = #{operType},</if>
+            <if test="operDesc != null">oper_desc = #{operDesc},</if>
+            <if test="requestUrl != null">request_url = #{requestUrl},</if>
+            <if test="requestMethod != null">request_method = #{requestMethod},</if>
+            <if test="operIp != null">oper_ip = #{operIp},</if>
+            <if test="operParams != null">oper_params = #{operParams},</if>
+            <if test="jsonResult != null">json_result = #{jsonResult},</if>
+            <if test="costTime != null">cost_time = #{costTime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="errorMsg != null">error_msg = #{errorMsg},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="deleteById">
+        DELETE FROM sys_oper_log WHERE id = #{id}
+    </delete>
+    
+    <!-- 批量删除 -->
+    <delete id="deleteBatch">
+        DELETE FROM sys_oper_log WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eutmp.app.mapper.SysPermissionMapper">
+    
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.eutmp.app.bean.SysPermission">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="parent_id" property="parentId" jdbcType="BIGINT"/>
+        <result column="perm_name" property="permName" jdbcType="VARCHAR"/>
+        <result column="perm_key" property="permKey" jdbcType="VARCHAR"/>
+        <result column="perm_type" property="permType" jdbcType="TINYINT"/>
+        <result column="path" property="path" jdbcType="VARCHAR"/>
+        <result column="icon" property="icon" jdbcType="VARCHAR"/>
+        <result column="sort" property="sort" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, parent_id, perm_name, perm_key, perm_type, path, icon, sort, status, create_time, update_time
+    </sql>
+    
+    <!-- 根据ID查询 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_permission
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 查询所有 -->
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_permission
+        ORDER BY sort ASC
+    </select>
+    
+    <!-- 根据父权限ID查询 -->
+    <select id="selectByParentId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_permission
+        WHERE parent_id = #{parentId}
+        ORDER BY sort ASC
+    </select>
+    
+    <!-- 根据权限标识查询 -->
+    <select id="selectByPermKey" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_permission
+        WHERE perm_key = #{permKey}
+    </select>
+    
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.eutmp.app.bean.SysPermission" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_permission (
+            parent_id, perm_name, perm_key, perm_type, path, icon, sort, status, create_time, update_time
+        ) VALUES (
+            #{parentId}, #{permName}, #{permKey}, #{permType}, #{path}, #{icon}, #{sort}, #{status}, #{createTime}, #{updateTime}
+        )
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="update" parameterType="com.eutmp.app.bean.SysPermission">
+        UPDATE sys_permission
+        <set>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="permName != null">perm_name = #{permName},</if>
+            <if test="permKey != null">perm_key = #{permKey},</if>
+            <if test="permType != null">perm_type = #{permType},</if>
+            <if test="path != null">path = #{path},</if>
+            <if test="icon != null">icon = #{icon},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="deleteById">
+        DELETE FROM sys_permission WHERE id = #{id}
+    </delete>
+    
+    <!-- 根据用户ID查询权限列表 -->
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT DISTINCT p.*
+        FROM sys_permission p
+        INNER JOIN sys_role_permission rp ON p.id = rp.perm_id
+        INNER JOIN sys_user_role ur ON rp.role_id = ur.role_id
+        WHERE ur.user_id = #{userId}
+        ORDER BY p.sort ASC
+    </select>
+    
+    <!-- 根据角色ID查询权限列表 -->
+    <select id="selectByRoleId" resultMap="BaseResultMap">
+        SELECT p.*
+        FROM sys_permission p
+        INNER JOIN sys_role_permission rp ON p.id = rp.perm_id
+        WHERE rp.role_id = #{roleId}
+        ORDER BY p.sort ASC
+    </select>
+    
+</mapper>

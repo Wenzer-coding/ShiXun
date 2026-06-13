@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eutmp.app.mapper.ClassInfoMapper">
+    
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.eutmp.app.bean.ClassInfo">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="class_name" property="className" jdbcType="VARCHAR"/>
+        <result column="class_code" property="classCode" jdbcType="VARCHAR"/>
+        <result column="major" property="major" jdbcType="VARCHAR"/>
+        <result column="grade" property="grade" jdbcType="INTEGER"/>
+        <result column="head_teacher" property="headTeacher" jdbcType="VARCHAR"/>
+        <result column="student_count" property="studentCount" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, class_name, class_code, major, grade, head_teacher, student_count, status, create_time, update_time
+    </sql>
+    
+    <!-- 根据ID查询班级 -->
+    <select id="selectClassInfoById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM class_info
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 条件查询班级列表 -->
+    <select id="selectClassInfoList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM class_info
+        <where>
+            <if test="className != null and className != ''">
+                AND class_name LIKE CONCAT('%', #{className}, '%')
+            </if>
+            <if test="classCode != null and classCode != ''">
+                AND class_code LIKE CONCAT('%', #{classCode}, '%')
+            </if>
+            <if test="major != null and major != ''">
+                AND major LIKE CONCAT('%', #{major}, '%')
+            </if>
+            <if test="grade != null">
+                AND grade = #{grade}
+            </if>
+            <if test="headTeacher != null and headTeacher != ''">
+                AND head_teacher LIKE CONCAT('%', #{headTeacher}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+    
+    <!-- 新增班级 -->
+    <insert id="insertClassInfo" parameterType="com.eutmp.app.bean.ClassInfo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO class_info (
+            class_name, class_code, major, grade, head_teacher, student_count, status, create_time, update_time
+        ) VALUES (
+            #{className}, #{classCode}, #{major}, #{grade}, #{headTeacher}, #{studentCount}, #{status}, #{createTime}, #{updateTime}
+        )
+    </insert>
+    
+    <!-- 修改班级 -->
+    <update id="updateClassInfo" parameterType="com.eutmp.app.bean.ClassInfo">
+        UPDATE class_info
+        <set>
+            <if test="className != null">class_name = #{className},</if>
+            <if test="classCode != null">class_code = #{classCode},</if>
+            <if test="major != null">major = #{major},</if>
+            <if test="grade != null">grade = #{grade},</if>
+            <if test="headTeacher != null">head_teacher = #{headTeacher},</if>
+            <if test="studentCount != null">student_count = #{studentCount},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 删除班级 -->
+    <delete id="deleteClassInfoById">
+        DELETE FROM class_info WHERE id = #{id}
+    </delete>
+    
+    <!-- 批量删除班级 -->
+    <delete id="deleteClassInfoByIds">
+        DELETE FROM class_info WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <!-- 校验班级编号是否唯一 -->
+    <select id="checkClassCodeUnique" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM class_info
+        WHERE class_code = #{classCode}
+        LIMIT 1
+    </select>
+    
+</mapper>

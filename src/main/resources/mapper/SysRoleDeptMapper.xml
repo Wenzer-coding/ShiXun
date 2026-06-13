@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eutmp.app.mapper.SysRoleDeptMapper">
+    
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.eutmp.app.bean.SysRoleDept">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="role_id" property="roleId" jdbcType="BIGINT"/>
+        <result column="dept_id" property="deptId" jdbcType="BIGINT"/>
+    </resultMap>
+    
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, role_id, dept_id
+    </sql>
+    
+    <!-- 根据ID查询 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_role_dept
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 根据角色ID查询 -->
+    <select id="selectByRoleId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_role_dept
+        WHERE role_id = #{roleId}
+    </select>
+    
+    <!-- 根据部门ID查询 -->
+    <select id="selectByDeptId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_role_dept
+        WHERE dept_id = #{deptId}
+    </select>
+    
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.eutmp.app.bean.SysRoleDept" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_role_dept (
+            role_id, dept_id
+        ) VALUES (
+            #{roleId}, #{deptId}
+        )
+    </insert>
+    
+    <!-- 批量新增 -->
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO sys_role_dept (role_id, dept_id) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.roleId}, #{item.deptId})
+        </foreach>
+    </insert>
+    
+    <!-- 根据角色ID删除 -->
+    <delete id="deleteByRoleId">
+        DELETE FROM sys_role_dept WHERE role_id = #{roleId}
+    </delete>
+    
+    <!-- 删除 -->
+    <delete id="deleteById">
+        DELETE FROM sys_role_dept WHERE id = #{id}
+    </delete>
+    
+</mapper>

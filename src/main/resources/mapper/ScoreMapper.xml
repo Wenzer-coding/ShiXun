@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eutmp.app.mapper.ScoreMapper">
+    
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.eutmp.app.bean.Score">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="student_id" property="studentId" jdbcType="BIGINT"/>
+        <result column="course_id" property="courseId" jdbcType="BIGINT"/>
+        <result column="exam_score" property="examScore" jdbcType="DOUBLE"/>
+        <result column="usual_score" property="usualScore" jdbcType="DOUBLE"/>
+        <result column="total_score" property="totalScore" jdbcType="DOUBLE"/>
+        <result column="semester" property="semester" jdbcType="VARCHAR"/>
+        <result column="exam_type" property="examType" jdbcType="TINYINT"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, student_id, course_id, exam_score, usual_score, total_score, semester, exam_type, remark, create_time, update_time
+    </sql>
+    
+    <!-- 根据ID查询成绩 -->
+    <select id="selectScoreById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM score
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 条件查询成绩列表 -->
+    <select id="selectScoreList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM score
+        <where>
+            <if test="studentId != null">
+                AND student_id = #{studentId}
+            </if>
+            <if test="courseId != null">
+                AND course_id = #{courseId}
+            </if>
+            <if test="semester != null and semester != ''">
+                AND semester = #{semester}
+            </if>
+            <if test="examType != null">
+                AND exam_type = #{examType}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+    
+    <!-- 新增成绩 -->
+    <insert id="insertScore" parameterType="com.eutmp.app.bean.Score" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO score (
+            student_id, course_id, exam_score, usual_score, total_score, semester, exam_type, remark, create_time, update_time
+        ) VALUES (
+            #{studentId}, #{courseId}, #{examScore}, #{usualScore}, #{totalScore}, #{semester}, #{examType}, #{remark}, #{createTime}, #{updateTime}
+        )
+    </insert>
+    
+    <!-- 修改成绩 -->
+    <update id="updateScore" parameterType="com.eutmp.app.bean.Score">
+        UPDATE score
+        <set>
+            <if test="studentId != null">student_id = #{studentId},</if>
+            <if test="courseId != null">course_id = #{courseId},</if>
+            <if test="examScore != null">exam_score = #{examScore},</if>
+            <if test="usualScore != null">usual_score = #{usualScore},</if>
+            <if test="totalScore != null">total_score = #{totalScore},</if>
+            <if test="semester != null">semester = #{semester},</if>
+            <if test="examType != null">exam_type = #{examType},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 删除成绩 -->
+    <delete id="deleteScoreById">
+        DELETE FROM score WHERE id = #{id}
+    </delete>
+    
+    <!-- 批量删除成绩 -->
+    <delete id="deleteScoreByIds">
+        DELETE FROM score WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <!-- 查询学生某课程的成绩 -->
+    <select id="selectScoreByStudentAndCourse" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM score
+        WHERE student_id = #{studentId} AND course_id = #{courseId}
+        LIMIT 1
+    </select>
+    
+</mapper>

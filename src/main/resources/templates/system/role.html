@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>角色管理 - 高校实训管理平台</title>
+    <!-- Bootstrap 5.3.0 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6.4.0 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .content-card {
+            background: #ffffff;
+            border-radius: 0;
+            padding: 32px;
+            box-shadow: none;
+            min-height: 100vh;
+        }
+
+        .card-header {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin: 0 0 4px 0;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: #86868b;
+            margin: 0;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-input, .search-select {
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .search-input {
+            min-width: 150px;
+        }
+
+        .search-select {
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        .search-input:focus, .search-select:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .btn-icon {
+            border: 1px solid #d1d1d6;
+            background: #ffffff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+            color: #007AFF;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-icon:hover {
+            background-color: #f5f5f7;
+            border-color: #007AFF;
+        }
+
+        .btn-icon-danger {
+            color: #FF3B30;
+        }
+
+        .btn-icon-danger:hover {
+            background-color: #ffe5e5;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: #f5f5f7;
+        }
+
+        .data-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #1d1d1f;
+            font-size: 14px;
+            border-bottom: 2px solid #e5e5e7;
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #1d1d1f;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f9f9fa;
+        }
+
+        .checkbox-cell {
+            width: 50px;
+        }
+
+        .custom-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-enabled {
+            background-color: #e6f7ed;
+            color: #00A862;
+        }
+
+        .status-disabled {
+            background-color: #ffe5e5;
+            color: #FF3B30;
+        }
+
+        .btn-action {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            margin-right: 4px;
+        }
+
+        .btn-edit {
+            color: #007AFF;
+        }
+
+        .btn-edit:hover {
+            background-color: #e8f0ff;
+        }
+
+        .btn-delete {
+            color: #FF3B30;
+        }
+
+        .btn-delete:hover {
+            background-color: #ffe5e5;
+        }
+
+        .action-cell {
+            white-space: nowrap;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 20px;
+            gap: 12px;
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: #86868b;
+        }
+
+        /* 模态框样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin: 0;
+        }
+
+        .modal-close {
+            border: none;
+            background: none;
+            font-size: 24px;
+            color: #86868b;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: #FF3B30;
+            margin-left: 4px;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        .form-error {
+            color: #FF3B30;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .form-error.show {
+            display: block;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e5e7;
+        }
+
+        .btn-modal {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #d1d1d6;
+        }
+
+        .btn-modal-cancel {
+            background: #ffffff;
+            color: #1d1d1f;
+        }
+
+        .btn-modal-cancel:hover {
+            background-color: #f5f5f7;
+        }
+
+        .btn-modal-primary {
+            background: #007AFF;
+            color: #ffffff;
+            border-color: #007AFF;
+        }
+
+        .btn-modal-primary:hover {
+            background: #0056cc;
+            border-color: #0056cc;
+        }
+
+        .btn-modal-primary:disabled {
+            background: #d1d1d6;
+            border-color: #d1d1d6;
+            cursor: not-allowed;
+        }
+
+        /* 确认对话框样式 */
+        .confirm-modal .modal-content {
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .confirm-icon {
+            font-size: 48px;
+            color: #FF3B30;
+            margin-bottom: 16px;
+        }
+
+        .confirm-message {
+            font-size: 16px;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+
+        .confirm-submessage {
+            font-size: 14px;
+            color: #86868b;
+        }
+
+        .btn-batch-delete {
+            display: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #86868b;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-user-shield" style="color: #007AFF; margin-right: 10px;"></i>
+                角色管理
+            </h2>
+            <p class="card-subtitle">管理系统中的角色和权限</p>
+        </div>
+
+        <!-- 工具栏 -->
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索角色名称或编码...">
+                <button class="btn-icon" onclick="searchRoles()">
+                    <i class="fas fa-search"></i>
+                    <span>查询</span>
+                </button>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn-icon" onclick="openAddModal()">
+                    <i class="fas fa-plus"></i>
+                    <span>新增</span>
+                </button>
+                <button class="btn-icon btn-icon-danger btn-batch-delete" id="batchDeleteBtn" onclick="batchDelete()">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>批量删除</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-cell">
+                            <input type="checkbox" class="custom-checkbox" id="selectAll" onchange="toggleSelectAll()">
+                        </th>
+                        <th>角色名称</th>
+                        <th>角色编码</th>
+                        <th>备注</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- 数据将通过JavaScript动态加载 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination-container">
+            <span class="pagination-info" id="paginationInfo">共 0 条记录</span>
+        </div>
+    </div>
+
+    <!-- 新增/编辑角色模态框 -->
+    <div class="modal-overlay" id="roleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增角色</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="roleForm" onsubmit="return false;">
+                <input type="hidden" id="roleId">
+                <div class="form-group">
+                    <label class="form-label">角色名称<span class="required">*</span></label>
+                    <input type="text" class="form-input" id="roleName" placeholder="请输入角色名称">
+                    <div class="form-error" id="roleNameError">请输入角色名称</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">角色编码<span class="required">*</span></label>
+                    <input type="text" class="form-input" id="roleCode" placeholder="请输入角色编码（英文）">
+                    <div class="form-error" id="roleCodeError">请输入角色编码</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">状态<span class="required">*</span></label>
+                    <select class="form-select" id="roleStatus">
+                        <option value="1">启用</option>
+                        <option value="0">禁用</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <textarea class="form-textarea" id="roleRemark" placeholder="请输入备注信息"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal btn-modal-cancel" onclick="closeModal()">取消</button>
+                    <button type="button" class="btn-modal btn-modal-primary" id="submitBtn" onclick="submitForm()">确定</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 确认对话框 -->
+    <div class="modal-overlay confirm-modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="confirm-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="confirm-message" id="confirmMessage">确定要删除吗？</div>
+            <div class="confirm-submessage" id="confirmSubmessage">此操作不可撤销</div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-modal-cancel" onclick="closeConfirmModal()">取消</button>
+                <button class="btn-modal btn-modal-primary" style="background: #FF3B30; border-color: #FF3B30;" id="confirmBtn" onclick="confirmAction()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 权限分配模态框 -->
+    <div class="modal-overlay" id="permissionModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="permModalTitle">分配权限</h3>
+                <button class="modal-close" onclick="closePermissionModal()">&times;</button>
+            </div>
+            <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f7; border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <input type="checkbox" id="selectAllPerms" onchange="toggleAllPermissions()" style="cursor: pointer;">
+                    <label for="selectAllPerms" style="cursor: pointer; font-weight: 500;">全选/取消全选</label>
+                </div>
+                <div style="font-size: 12px; color: #86868b;">
+                    <i class="fas fa-info-circle"></i> 勾选菜单会自动勾选其子菜单和按钮权限
+                </div>
+            </div>
+            <div id="permissionTree" style="max-height: 400px; overflow-y: auto; padding: 12px; border: 1px solid #e5e5e7; border-radius: 8px;">
+                <!-- 权限树将通过JavaScript动态生成 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-modal-cancel" onclick="closePermissionModal()">取消</button>
+                <button class="btn-modal btn-modal-primary" onclick="savePermissions()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        let roleList = [];
+        let selectedIds = [];
+        let confirmCallback = null;
+        
+        // 权限相关变量
+        let currentRoleId = null;
+        let currentRoleName = '';
+        let allPermissions = [];
+        let selectedPermIds = [];
+        let userPermissions = []; // 当前用户的权限标识列表
+
+        // 页面加载
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserPermissions(); // 先加载用户权限
+            
+            // 回车搜索
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchRoles();
+                }
+            });
+        });
+
+        // 加载当前用户的权限
+        function loadUserPermissions() {
+            axios.get('/api/auth/userinfo')
+                .then(response => {
+                    console.log('=== 用户信息响应 ===', response.data);
+                    if (response.data.code === 200) {
+                        userPermissions = response.data.data.permissions || [];
+                        console.log('=== 当前用户权限列表 ===', userPermissions);
+                        console.log('=== 权限数量 ===', userPermissions.length);
+                        console.log('=== 是否有 sys:role:add ===', userPermissions.includes('sys:role:add'));
+                        console.log('=== 是否有 sys:role:edit ===', userPermissions.includes('sys:role:edit'));
+                        console.log('=== 是否有 sys:role:remove ===', userPermissions.includes('sys:role:remove'));
+                        
+                        // 控制工具栏按钮显示
+                        updateToolbarButtons();
+                        
+                        // 加载完权限后再加载角色数据
+                        loadRoles();
+                    }
+                })
+                .catch(error => {
+                    console.error('加载用户权限失败:', error);
+                    userPermissions = [];
+                    updateToolbarButtons();
+                    loadRoles();
+                });
+        }
+
+        // 检查是否有某个权限
+        function hasPermission(permKey) {
+            // 超级管理员判断：必须同时满足两个条件
+            const isSuperAdmin = userPermissions.includes('system:manage') && 
+                                 userPermissions.includes('sys:user:add') &&
+                                 userPermissions.includes('sys:user:edit') &&
+                                 userPermissions.includes('sys:user:remove');
+            
+            console.log(`=== 权限检查: ${permKey} ===`);
+            console.log('  - 是否为超级管理员:', isSuperAdmin);
+            console.log('  - 是否有该权限:', userPermissions.includes(permKey));
+            console.log('  - 检查结果:', isSuperAdmin || userPermissions.includes(permKey));
+            
+            if (isSuperAdmin) {
+                return true;
+            }
+            
+            return userPermissions.includes(permKey);
+        }
+
+        // 更新工具栏按钮显示状态
+        function updateToolbarButtons() {
+            // 新增按钮（需要 sys:role:add 权限）
+            const addBtn = document.querySelector('.toolbar-right .btn-icon:not(.btn-icon-danger)');
+            if (addBtn) {
+                if (hasPermission('sys:role:add')) {
+                    addBtn.style.display = 'flex';
+                } else {
+                    addBtn.style.display = 'none';
+                }
+            }
+            
+            // 批量删除按钮默认隐藏
+            const batchDeleteBtn = document.getElementById('batchDeleteBtn');
+            batchDeleteBtn.style.display = 'none';
+        }
+
+        // 加载角色列表
+        function loadRoles() {
+            axios.get('/api/role/list')
+                .then(response => {
+                    if (response.data.code === 200) {
+                        roleList = response.data.data || [];
+                        renderTable(roleList);
+                    }
+                })
+                .catch(error => {
+                    console.error('加载角色列表失败:', error);
+                });
+        }
+
+        // 渲染表格
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <div class="empty-state-text">暂无数据</div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('paginationInfo').textContent = '共 0 条记录';
+                return;
+            }
+
+            tbody.innerHTML = data.map(role => {
+                // 构建操作按钮（根据权限控制显示）
+                let actionButtons = '';
+                
+                // 编辑按钮（需要 sys:role:edit 权限）
+                if (hasPermission('sys:role:edit')) {
+                    actionButtons += `
+                        <button class="btn-action btn-edit" onclick="openEditModal(${role.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                    `;
+                }
+                
+                // 权限按钮（所有人都可以看到）
+                actionButtons += `
+                    <button class="btn-action" style="color: #5856D6;" onclick="openPermissionModal(${role.id}, '${role.roleName}')">
+                        <i class="fas fa-key"></i> 权限
+                    </button>
+                `;
+                
+                // 删除按钮（需要 sys:role:remove 权限，且不能删除超级管理员角色）
+                if (hasPermission('sys:role:remove')) {
+                    // 检查是否是超级管理员角色（role_id=2 或者 role_code='admin'）
+                    const isSuperAdminRole = role.id === 2 || role.roleCode === 'admin';
+                    
+                    if (!isSuperAdminRole) {
+                        actionButtons += `
+                            <button class="btn-action btn-delete" onclick="deleteRole(${role.id}, '${role.roleName}')">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        `;
+                    }
+                }
+                
+                return `
+                    <tr>
+                        <td class="checkbox-cell">
+                            <input type="checkbox" class="custom-checkbox row-checkbox" 
+                                   value="${role.id}" onchange="updateSelection()">
+                        </td>
+                        <td>${role.roleName}</td>
+                        <td><code>${role.roleCode}</code></td>
+                        <td>${role.remark || '-'}</td>
+                        <td>
+                            <span class="status-badge ${role.status === 1 ? 'status-enabled' : 'status-disabled'}">
+                                ${role.status === 1 ? '启用' : '禁用'}
+                            </span>
+                        </td>
+                        <td>${role.createTime || '-'}</td>
+                        <td class="action-cell">
+                            ${actionButtons}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('paginationInfo').textContent = `共 ${data.length} 条记录`;
+            updateSelectAllCheckbox();
+        }
+
+        // 查询角色
+        function searchRoles() {
+            filterRoles();
+        }
+
+        // 过滤角色
+        function filterRoles() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            let filtered = roleList;
+
+            if (searchTerm) {
+                filtered = filtered.filter(role => 
+                    role.roleName.toLowerCase().includes(searchTerm) ||
+                    role.roleCode.toLowerCase().includes(searchTerm) ||
+                    (role.remark && role.remark.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            renderTable(filtered);
+        }
+
+        // 全选/取消全选
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateSelection();
+        }
+
+        // 更新选择状态
+        function updateSelection() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            selectedIds = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => parseInt(cb.value));
+
+            const batchDeleteBtn = document.getElementById('batchDeleteBtn');
+            batchDeleteBtn.style.display = selectedIds.length > 0 ? 'flex' : 'none';
+
+            updateSelectAllCheckbox();
+        }
+
+        // 更新全选复选框状态
+        function updateSelectAllCheckbox() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            
+            if (checkboxes.length === 0) {
+                selectAll.checked = false;
+                selectAll.indeterminate = false;
+            } else if (selectedIds.length === 0) {
+                selectAll.checked = false;
+                selectAll.indeterminate = false;
+            } else if (selectedIds.length === checkboxes.length) {
+                selectAll.checked = true;
+                selectAll.indeterminate = false;
+            } else {
+                selectAll.checked = false;
+                selectAll.indeterminate = true;
+            }
+        }
+
+        // 打开新增模态框
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = '新增角色';
+            document.getElementById('roleId').value = '';
+            document.getElementById('roleName').value = '';
+            document.getElementById('roleCode').value = '';
+            document.getElementById('roleStatus').value = '1';
+            document.getElementById('roleRemark').value = '';
+            clearFormErrors();
+            document.getElementById('roleModal').classList.add('show');
+        }
+
+        // 打开编辑模态框
+        function openEditModal(id) {
+            const role = roleList.find(r => r.id === id);
+            if (!role) return;
+
+            document.getElementById('modalTitle').textContent = '编辑角色';
+            document.getElementById('roleId').value = role.id;
+            document.getElementById('roleName').value = role.roleName;
+            document.getElementById('roleCode').value = role.roleCode;
+            document.getElementById('roleStatus').value = role.status.toString();
+            document.getElementById('roleRemark').value = role.remark || '';
+            clearFormErrors();
+            document.getElementById('roleModal').classList.add('show');
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('roleModal').classList.remove('show');
+        }
+
+        // 清除表单错误
+        function clearFormErrors() {
+            document.querySelectorAll('.form-error').forEach(el => el.classList.remove('show'));
+            document.querySelectorAll('.form-input').forEach(el => el.style.borderColor = '#d1d1d6');
+        }
+
+        // 验证表单
+        function validateForm() {
+            let valid = true;
+            clearFormErrors();
+
+            const roleName = document.getElementById('roleName').value.trim();
+            const roleCode = document.getElementById('roleCode').value.trim();
+
+            if (!roleName) {
+                document.getElementById('roleNameError').classList.add('show');
+                document.getElementById('roleName').style.borderColor = '#FF3B30';
+                valid = false;
+            }
+
+            if (!roleCode) {
+                document.getElementById('roleCodeError').classList.add('show');
+                document.getElementById('roleCode').style.borderColor = '#FF3B30';
+                valid = false;
+            }
+
+            return valid;
+        }
+
+        // 提交表单
+        function submitForm() {
+            if (!validateForm()) return;
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '提交中...';
+
+            const id = document.getElementById('roleId').value;
+            const data = {
+                roleName: document.getElementById('roleName').value.trim(),
+                roleCode: document.getElementById('roleCode').value.trim(),
+                status: parseInt(document.getElementById('roleStatus').value),
+                remark: document.getElementById('roleRemark').value.trim()
+            };
+
+            if (id) {
+                data.id = parseInt(id);
+            }
+
+            const url = id ? '/api/role' : '/api/role';
+            const method = id ? 'put' : 'post';
+
+            axios[method](url, data)
+                .then(response => {
+                    if (response.data.code === 200) {
+                        closeModal();
+                        loadRoles();
+                        showSuccess(id ? '更新成功' : '新增成功');
+                    } else {
+                        showError(response.data.message || '操作失败');
+                    }
+                })
+                .catch(error => {
+                    const errorMsg = error.response?.data?.message || error.message || '操作失败';
+                    showError(errorMsg);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '确定';
+                });
+        }
+
+        // 删除角色
+        function deleteRole(id, name) {
+            showConfirm(
+                `确定要删除角色"${name}"吗？`,
+                '删除后无法恢复',
+                () => {
+                    axios.delete(`/api/role/${id}`)
+                        .then(response => {
+                            if (response.data.code === 200) {
+                                loadRoles();
+                                showSuccess('删除成功');
+                            } else {
+                                // 使用message字段而不是msg
+                                showError(response.data.message || '删除失败');
+                            }
+                        })
+                        .catch(error => {
+                            // 优先使用后端返回的错误消息
+                            const errorMsg = error.response?.data?.message || error.message || '删除失败';
+                            showError(errorMsg);
+                        });
+                }
+            );
+        }
+
+        // 批量删除
+        function batchDelete() {
+            if (selectedIds.length === 0) return;
+
+            showConfirm(
+                `确定要删除选中的 ${selectedIds.length} 个角色吗？`,
+                '删除后无法恢复',
+                () => {
+                    axios.delete('/api/role/batch', { data: selectedIds })
+                        .then(response => {
+                            if (response.data.code === 200) {
+                                loadRoles();
+                                selectedIds = [];
+                                document.getElementById('batchDeleteBtn').style.display = 'none';
+                                showSuccess('批量删除成功');
+                            } else {
+                                showError(response.data.message || '批量删除失败');
+                            }
+                        })
+                        .catch(error => {
+                            const errorMsg = error.response?.data?.message || error.message || '批量删除失败';
+                            showError(errorMsg);
+                        });
+                }
+            );
+        }
+
+        // 显示确认对话框
+        function showConfirm(message, submessage, callback) {
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmSubmessage').textContent = submessage || '';
+            confirmCallback = callback;
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        // 关闭确认对话框
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+            confirmCallback = null;
+        }
+
+        // 确认操作
+        function confirmAction() {
+            if (confirmCallback) {
+                confirmCallback();
+            }
+            closeConfirmModal();
+        }
+
+        // 显示成功提示
+        function showSuccess(message) {
+            showToast(message, 'success');
+        }
+
+        // 显示错误提示
+        function showError(message) {
+            showToast(message, 'error');
+        }
+
+        // Toast提示
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            
+            // 根据类型设置样式
+            const bgColor = type === 'success' ? '#00A862' : '#FF3B30';
+            const textColor = '#FFFFFF';
+            const borderColor = type === 'success' ? '#008F53' : '#E0352B';
+            
+            toast.style.cssText = `
+                position: fixed;
+                top: 24px;
+                right: 24px;
+                padding: 16px 24px;
+                border-radius: 12px;
+                background: ${bgColor};
+                color: ${textColor};
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 1.5;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+                border: 2px solid ${borderColor};
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                max-width: 400px;
+                word-wrap: break-word;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            `;
+            
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            // 添加动画样式
+            if (!document.getElementById('toastAnimation')) {
+                const style = document.createElement('style');
+                style.id = 'toastAnimation';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from {
+                            transform: translateX(400px);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                    @keyframes slideOut {
+                        from {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                        to {
+                            transform: translateX(400px);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ========== 权限分配功能 ==========
+
+        // 打开权限分配模态框
+        function openPermissionModal(roleId, roleName) {
+            currentRoleId = roleId;
+            currentRoleName = roleName;
+            document.getElementById('permModalTitle').textContent = `分配权限 - ${roleName}`;
+            document.getElementById('permissionModal').classList.add('show');
+            
+            // 加载权限树
+            loadPermissionTree(roleId);
+        }
+
+        // 关闭权限分配模态框
+        function closePermissionModal() {
+            document.getElementById('permissionModal').classList.remove('show');
+            currentRoleId = null;
+            currentRoleName = '';
+        }
+
+        // 加载权限树
+        function loadPermissionTree(roleId) {
+            console.log('=== 开始加载权限树 ===');
+            console.log('角色ID:', roleId);
+            
+            Promise.all([
+                axios.get('/api/role/permission/tree'),
+                axios.get(`/api/role/permission/${roleId}`)
+            ])
+            .then(([treeRes, permRes]) => {
+                console.log('权限树响应:', treeRes.data);
+                console.log('角色权限响应:', permRes.data);
+                console.log('权限树状态码:', treeRes.data.code);
+                console.log('角色权限状态码:', permRes.data.code);
+                
+                // 检查响应是否成功
+                if (treeRes.data && treeRes.data.code === 200) {
+                    allPermissions = treeRes.data.data || [];
+                    console.log('✅ 权限树加载成功，数量:', allPermissions.length);
+                    console.log('权限数据:', allPermissions);
+                } else {
+                    console.error('❌ 权限树加载失败:', treeRes.data);
+                    showError('加载权限树失败: ' + (treeRes.data?.msg || treeRes.data?.message || '未知错误'));
+                    return;
+                }
+                
+                if (permRes.data && permRes.data.code === 200) {
+                    selectedPermIds = permRes.data.data || [];
+                    console.log('✅ 角色权限加载成功，数量:', selectedPermIds.length);
+                    console.log('已选权限ID:', selectedPermIds);
+                } else {
+                    console.error('❌ 角色权限加载失败:', permRes.data);
+                    showError('加载角色权限失败: ' + (permRes.data?.msg || permRes.data?.message || '未知错误'));
+                    return;
+                }
+                
+                // 统计菜单和按钮数量
+                const menuCount = allPermissions.filter(p => p.permType === 1).length;
+                const buttonCount = allPermissions.filter(p => p.permType === 2).length;
+                console.log('菜单数量:', menuCount);
+                console.log('按钮数量:', buttonCount);
+                
+                if (allPermissions.length === 0) {
+                    document.getElementById('permissionTree').innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #86868b;">
+                            <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                            <p>暂无权限数据，请先在"菜单权限管理"中添加权限</p>
+                        </div>
+                    `;
+                } else {
+                    renderPermissionTree();
+                }
+            })
+            .catch(error => {
+                console.error('❌ 加载权限树异常:', error);
+                console.error('错误名称:', error.name);
+                console.error('错误消息:', error.message);
+                console.error('错误响应:', error.response);
+                console.error('错误响应数据:', error.response?.data);
+                console.error('错误响应状态:', error.response?.status);
+                
+                let errorMsg = '加载权限树失败';
+                if (error.response) {
+                    // 服务器返回错误状态码
+                    errorMsg += ': ' + (error.response.data?.msg || error.response.data?.message || error.response.status);
+                } else if (error.request) {
+                    // 请求发送了但没有响应
+                    errorMsg += ': 无法连接到服务器';
+                } else {
+                    errorMsg += ': ' + error.message;
+                }
+                
+                showError(errorMsg);
+            });
+        }
+
+        // 渲染权限树（递归方式）
+        function renderPermissionTree() {
+            const container = document.getElementById('permissionTree');
+            container.innerHTML = '';
+            
+            // 构建树形结构
+            const tree = buildPermissionTree(allPermissions);
+            console.log('构建的权限树:', tree);
+            
+            // 递归渲染树
+            tree.forEach(node => {
+                const nodeElement = renderTreeNode(node, 0);
+                container.appendChild(nodeElement);
+            });
+        }
+
+        // 递归构建树形结构
+        function buildPermissionTree(permissions) {
+            const result = [];
+            const map = {};
+            
+            // 创建映射
+            permissions.forEach(p => {
+                map[p.id] = { ...p, children: [] };
+            });
+            
+            // 构建树
+            permissions.forEach(p => {
+                if (p.parentId === 0) {
+                    // 根节点
+                    result.push(map[p.id]);
+                } else {
+                    // 子节点
+                    if (map[p.parentId]) {
+                        map[p.parentId].children.push(map[p.id]);
+                    }
+                }
+            });
+            
+            return result;
+        }
+
+        // 递归渲染树节点
+        function renderTreeNode(node, level) {
+            const wrapper = document.createElement('div');
+            wrapper.style.marginBottom = '4px';
+            
+            // 计算缩进
+            const indent = level * 24;
+            const isMenu = node.permType === 1;
+            
+            // 节点容器
+            const nodeDiv = document.createElement('div');
+            nodeDiv.style.cssText = `
+                display: flex;
+                align-items: center;
+                padding: ${isMenu ? '8px 12px' : '6px 10px'};
+                background: ${isMenu ? '#f5f5f7' : '#ffffff'};
+                border-radius: 6px;
+                margin-left: ${indent}px;
+                ${!isMenu ? 'border: 1px solid #e5e5e7;' : ''}
+            `;
+            
+            // 复选框
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `perm-${node.id}`;
+            checkbox.value = node.id;
+            checkbox.checked = selectedPermIds.includes(node.id);
+            checkbox.style.cssText = 'margin-right: 8px; cursor: pointer;';
+            checkbox.onchange = () => handlePermissionChange(node.id, checkbox.checked);
+            
+            // 图标
+            const icon = node.icon ? `<i class="${node.icon}" style="margin-right: 8px; color: #007AFF;"></i>` : '';
+            
+            // 标签
+            const label = document.createElement('label');
+            label.htmlFor = `perm-${node.id}`;
+            label.style.cssText = `
+                flex: 1; 
+                cursor: pointer; 
+                font-weight: ${isMenu ? '600' : '400'};
+                font-size: ${isMenu ? '14px' : '13px'};
+                color: ${isMenu ? '#1d1d1f' : '#86868b'};
+            `;
+            label.innerHTML = `${icon}${node.permName}`;
+            
+            nodeDiv.appendChild(checkbox);
+            nodeDiv.appendChild(label);
+            wrapper.appendChild(nodeDiv);
+            
+            // 递归渲染子节点
+            if (node.children && node.children.length > 0) {
+                node.children.forEach(child => {
+                    const childElement = renderTreeNode(child, level + 1);
+                    wrapper.appendChild(childElement);
+                });
+            }
+            
+            return wrapper;
+        }
+
+        // 处理权限变更（父子联动）
+        function handlePermissionChange(permId, checked) {
+            console.log(`权限 ${permId} 变更为:`, checked);
+            
+            if (checked) {
+                // 勾选：添加自己
+                if (!selectedPermIds.includes(permId)) {
+                    selectedPermIds.push(permId);
+                }
+                
+                // 勾选所有子节点
+                checkChildren(permId, true);
+                
+                // 勾选所有父节点
+                checkParents(permId);
+            } else {
+                // 取消勾选：移除自己
+                selectedPermIds = selectedPermIds.filter(id => id !== permId);
+                
+                // 取消所有子节点
+                checkChildren(permId, false);
+            }
+            
+            console.log('已选权限ID:', selectedPermIds);
+        }
+
+        // 递归勾选/取消子节点
+        function checkChildren(permId, checked) {
+            const children = allPermissions.filter(p => p.parentId === permId);
+            children.forEach(child => {
+                if (checked) {
+                    if (!selectedPermIds.includes(child.id)) {
+                        selectedPermIds.push(child.id);
+                    }
+                } else {
+                    selectedPermIds = selectedPermIds.filter(id => id !== child.id);
+                }
+                
+                // 更新复选框状态
+                const checkbox = document.getElementById(`perm-${child.id}`);
+                if (checkbox) checkbox.checked = checked;
+                
+                // 递归处理子节点的子节点
+                checkChildren(child.id, checked);
+            });
+        }
+
+        // 递归勾选父节点
+        function checkParents(permId) {
+            const perm = allPermissions.find(p => p.id === permId);
+            if (!perm || perm.parentId === 0) return;
+            
+            // 勾选父节点
+            if (!selectedPermIds.includes(perm.parentId)) {
+                selectedPermIds.push(perm.parentId);
+            }
+            
+            // 更新父节点复选框
+            const parentCheckbox = document.getElementById(`perm-${perm.parentId}`);
+            if (parentCheckbox) parentCheckbox.checked = true;
+            
+            // 递归处理父节点的父节点
+            checkParents(perm.parentId);
+        }
+
+        // 全选/取消全选
+        function toggleAllPermissions() {
+            const selectAll = document.getElementById('selectAllPerms');
+            const allCheckboxes = document.querySelectorAll('#permissionTree input[type="checkbox"]');
+            
+            if (selectAll.checked) {
+                // 全选
+                selectedPermIds = allPermissions.map(p => p.id);
+                allCheckboxes.forEach(cb => cb.checked = true);
+            } else {
+                // 取消全选
+                selectedPermIds = [];
+                allCheckboxes.forEach(cb => cb.checked = false);
+            }
+        }
+
+        // 保存权限
+        function savePermissions() {
+            if (!currentRoleId) {
+                console.error('❌ 角色ID为空');
+                return;
+            }
+            
+            console.log('=== 开始保存权限 ===');
+            console.log('角色ID:', currentRoleId);
+            console.log('当前选中的权限ID列表:', selectedPermIds);
+            console.log('权限数量:', selectedPermIds.length);
+            
+            // 验证数据
+            if (selectedPermIds.length === 0) {
+                console.warn('⚠️ 未选择任何权限');
+            }
+            
+            axios.post(`/api/role/permission/assign?roleId=${currentRoleId}`, selectedPermIds)
+                .then(response => {
+                    console.log('✅ 保存权限响应:', response.data);
+                    if (response.data.code === 200) {
+                        closePermissionModal();
+                        showSuccess('权限分配成功');
+                    } else {
+                        console.error('❌ 保存权限失败:', response.data);
+                        showError(response.data.message || '权限分配失败');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ 保存权限异常:', error);
+                    console.error('错误响应:', error.response?.data);
+                    const errorMsg = error.response?.data?.message || error.message || '权限分配失败';
+                    showError(errorMsg);
+                });
+        }
+    </script>
+</body>
+</html>

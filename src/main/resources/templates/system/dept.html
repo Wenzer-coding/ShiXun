@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>部门管理 - 高校实训管理平台</title>
+    <!-- Bootstrap 5.3.0 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6.4.0 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .content-card {
+            background: #ffffff;
+            border-radius: 0;
+            padding: 32px;
+            box-shadow: none;
+            min-height: 100vh;
+        }
+
+        .card-header {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin: 0 0 4px 0;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: #86868b;
+            margin: 0;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 16px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-input {
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .btn-icon {
+            border: 1px solid #d1d1d6;
+            background: #ffffff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+            color: #007AFF;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-icon:hover {
+            background-color: #f5f5f7;
+            border-color: #007AFF;
+        }
+
+        .btn-icon-primary {
+            color: #007AFF;
+        }
+
+        .btn-icon-primary:hover {
+            background-color: #e8f0ff;
+            border-color: #007AFF;
+        }
+
+        .btn-icon-danger {
+            color: #FF3B30;
+        }
+
+        .btn-icon-danger:hover {
+            background-color: #ffe5e5;
+            border-color: #FF3B30;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: #f5f5f7;
+            border: none;
+            font-weight: 600;
+            color: #1d1d1f;
+            padding: 12px 16px;
+        }
+
+        .table tbody td {
+            padding: 12px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-enabled {
+            background-color: #e8f5e9;
+            color: #34C759;
+        }
+
+        .status-disabled {
+            background-color: #ffebee;
+            color: #FF3B30;
+        }
+
+        .action-btn {
+            border: none;
+            background: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            background-color: #f5f5f7;
+        }
+
+        .btn-edit {
+            color: #007AFF;
+        }
+
+        .btn-delete {
+            color: #FF3B30;
+        }
+
+        .tree-indent {
+            padding-left: 24px;
+        }
+
+        .tree-toggle {
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            color: #86868b;
+        }
+
+        .tree-toggle:hover {
+            background-color: #f5f5f7;
+            color: #007AFF;
+        }
+
+        .tree-toggle i {
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .tree-toggle.expanded i {
+            transform: rotate(90deg);
+        }
+
+        .dept-icon {
+            margin-right: 8px;
+            color: #007AFF;
+        }
+
+        .dept-row {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .dept-row:hover {
+            background-color: #f5f5f7;
+        }
+
+        .dept-row.collapsed {
+            display: none !important;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e5e5e7;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        /* 分页组件样式 */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e5e7;
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: #86868b;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination-btn {
+            padding: 8px 12px;
+            border: 1px solid #d1d1d6;
+            background: #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            color: #1d1d1f;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background-color: #f5f5f7;
+            border-color: #007AFF;
+            color: #007AFF;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background-color: #007AFF;
+            border-color: #007AFF;
+            color: #ffffff;
+        }
+
+        .page-size-select {
+            padding: 8px 12px;
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .page-size-select:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 内容卡片 -->
+        <div class="content-card">
+            <!-- 卡片头部 -->
+            <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-building me-2" style="color: #007AFF;"></i>部门管理</h2>
+                <p class="card-subtitle">管理系统组织架构和部门信息</p>
+            </div>
+
+            <!-- 工具栏 -->
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <input type="text" class="search-input" id="searchInput" placeholder="搜索部门名称..." onkeyup="handleSearch(event)">
+                    <button class="btn-icon" onclick="searchDept()">
+                        <i class="fas fa-search"></i>
+                        <span>查询</span>
+                    </button>
+                </div>
+                <div class="toolbar-right">
+                    <button class="btn-icon btn-icon-primary" onclick="showAddModal()">
+                        <i class="fas fa-plus"></i>
+                        <span>新增部门</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 部门列表表格 -->
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 300px;">部门名称</th>
+                        <th style="width: 100px;">排序</th>
+                        <th style="width: 100px;">状态</th>
+                        <th style="width: 180px;">创建时间</th>
+                        <th style="width: 150px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="deptTableBody">
+                    <!-- 数据将通过JavaScript动态加载 -->
+                </tbody>
+            </table>
+
+            <!-- 分页组件 -->
+            <div class="pagination-container" id="paginationContainer" style="display: none;">
+                <div class="pagination-info">
+                    <span>共 <strong id="totalRecords">0</strong> 条记录，</span>
+                    <span>共 <strong id="totalPages">0</strong> 页，</span>
+                    <span>每页显示
+                        <select class="page-size-select" id="pageSizeSelect" onchange="changePageSize()">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    条
+                </div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn" id="btnFirstPage" onclick="goToPage(1)">
+                        <i class="fas fa-angle-double-left"></i>
+                        <span>首页</span>
+                    </button>
+                    <button class="pagination-btn" id="btnPrevPage" onclick="goToPage(currentPage - 1)">
+                        <i class="fas fa-angle-left"></i>
+                        <span>上一页</span>
+                    </button>
+                    <span style="font-size: 14px; color: #1d1d1f;">
+                        第 <strong id="currentPageNum">1</strong> 页
+                    </span>
+                    <button class="pagination-btn" id="btnNextPage" onclick="goToPage(currentPage + 1)">
+                        <span>下一页</span>
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                    <button class="pagination-btn" id="btnLastPage" onclick="goToPage(totalPages)">
+                        <span>尾页</span>
+                        <i class="fas fa-angle-double-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/编辑部门模态框 -->
+    <div class="modal fade" id="deptModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">新增部门</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="deptForm">
+                        <input type="hidden" id="deptId">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">上级部门</label>
+                            <select class="form-select" id="parentId">
+                                <option value="0">顶级部门</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">部门名称 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="deptName" required placeholder="请输入部门名称">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">排序</label>
+                            <input type="number" class="form-control" id="sort" value="0" placeholder="数字越小越靠前">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">状态</label>
+                            <select class="form-select" id="status">
+                                <option value="1">启用</option>
+                                <option value="0">停用</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveDept()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        let deptList = [];
+        let deptModal;
+        let userPermissions = []; // 当前用户的权限标识列表
+        
+        // 分页相关变量
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalPages = 0;
+        let totalRecords = 0;
+
+        // 页面加载时执行
+        document.addEventListener('DOMContentLoaded', function() {
+            deptModal = new bootstrap.Modal(document.getElementById('deptModal'));
+            loadUserPermissions(); // 先加载用户权限
+        });
+
+        // 加载当前用户的权限
+        function loadUserPermissions() {
+            axios.get('/api/auth/userinfo')
+                .then(response => {
+                    if (response.data.code === 200) {
+                        userPermissions = response.data.data.permissions || [];
+                        console.log('=== 当前用户权限列表 ===', userPermissions);
+                        console.log('=== 是否有 sys:dept:add ===', userPermissions.includes('sys:dept:add'));
+                        console.log('=== 是否有 sys:dept:edit ===', userPermissions.includes('sys:dept:edit'));
+                        console.log('=== 是否有 sys:dept:remove ===', userPermissions.includes('sys:dept:remove'));
+                        
+                        // 控制工具栏按钮显示
+                        updateToolbarButtons();
+                        
+                        // 加载完权限后再加载数据
+                        loadDeptTree();
+                        loadDeptPage();
+                    }
+                })
+                .catch(error => {
+                    console.error('加载用户权限失败:', error);
+                    userPermissions = [];
+                    updateToolbarButtons();
+                    loadDeptTree();
+                    loadDeptPage();
+                });
+        }
+
+        // 检查是否有某个权限
+        function hasPermission(permKey) {
+            // 超级管理员判断：必须同时满足两个条件
+            const isSuperAdmin = userPermissions.includes('system:manage') && 
+                                 userPermissions.includes('sys:user:add') &&
+                                 userPermissions.includes('sys:user:edit') &&
+                                 userPermissions.includes('sys:user:remove');
+            
+            console.log(`=== 权限检查: ${permKey} ===`);
+            console.log('  - 是否为超级管理员:', isSuperAdmin);
+            console.log('  - 是否有该权限:', userPermissions.includes(permKey));
+            console.log('  - 检查结果:', isSuperAdmin || userPermissions.includes(permKey));
+            
+            if (isSuperAdmin) {
+                return true;
+            }
+            
+            return userPermissions.includes(permKey);
+        }
+
+        // 更新工具栏按钮显示状态
+        function updateToolbarButtons() {
+            // 新增部门按钮（需要 sys:dept:add 权限）
+            const addBtn = document.querySelector('.toolbar-right .btn-icon-primary');
+            if (addBtn) {
+                if (hasPermission('sys:dept:add')) {
+                    addBtn.style.display = 'flex';
+                } else {
+                    addBtn.style.display = 'none';
+                }
+            }
+        }
+
+        // 加载部门树（用于上级部门下拉菜单）
+        function loadDeptTree() {
+            axios.get('/api/dept/tree')
+                .then(response => {
+                    if (response.data.code === 200) {
+                        const allDepts = response.data.data || [];
+                        updateParentSelect(allDepts);
+                    }
+                })
+                .catch(error => {
+                    console.error('加载部门树失败:', error);
+                });
+        }
+
+        // 加载部门分页数据
+        function loadDeptPage() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            
+            axios.get('/api/dept/page', {
+                params: {
+                    pageNum: currentPage,
+                    pageSize: pageSize,
+                    deptName: keyword
+                }
+            })
+            .then(response => {
+                if (response.data.code === 200) {
+                    const pageData = response.data.data;
+                    deptList = pageData.list || [];
+                    totalPages = pageData.pages || 0;
+                    totalRecords = pageData.total || 0;
+                    
+                    renderDeptTable(deptList);
+                    renderPagination();
+                } else {
+                    showToast('加载部门列表失败', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('加载部门列表失败:', error);
+                showToast('网络错误', 'error');
+            });
+        }
+
+        // 搜索部门
+        function searchDept() {
+            // 重置到第一页
+            currentPage = 1;
+            loadDeptPage();
+        }
+
+        // 处理回车键搜索
+        function handleSearch(event) {
+            if (event.key === 'Enter') {
+                searchDept();
+            }
+        }
+
+        // 渲染部门表格（树形结构）
+        function renderDeptTable(depts) {
+            const tbody = document.getElementById('deptTableBody');
+            tbody.innerHTML = '';
+
+            if (!depts || depts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #86868b;">暂无数据</td></tr>';
+                return;
+            }
+
+            // 构建树形结构
+            const tree = buildTree(depts, 0);
+            renderTreeRows(tree, tbody, 0);
+        }
+
+        // 构建树形结构
+        function buildTree(list, parentId) {
+            return list
+                .filter(item => item.parentId === parentId)
+                .sort((a, b) => {
+                    const sortA = a.sort || 0;
+                    const sortB = b.sort || 0;
+                    if (sortA !== sortB) {
+                        return sortA - sortB;
+                    }
+                    return a.id - b.id;
+                })
+                .map(item => ({
+                    ...item,
+                    children: buildTree(list, item.id)
+                }));
+        }
+
+        // 渲染树形表格行
+        function renderTreeRows(tree, tbody, level) {
+            tree.forEach(dept => {
+                const tr = document.createElement('tr');
+                tr.className = 'dept-row';
+                tr.dataset.deptId = dept.id;
+                
+                // 部门名称（带图标和缩进）
+                const nameCell = document.createElement('td');
+                const hasChildren = dept.children && dept.children.length > 0;
+                
+                // 缩进
+                let html = '<span class="tree-indent">'.repeat(level);
+                
+                // 折叠/展开按钮（仅当有子部门时）
+                if (hasChildren) {
+                    html += `<span class="tree-toggle expanded" onclick="toggleDept(event, ${dept.id})">
+                        <i class="fas fa-chevron-right"></i>
+                    </span>`;
+                } else {
+                    html += '<span style="display: inline-block; width: 28px;"></span>';
+                }
+                
+                // 部门图标
+                html += `<i class="fas fa-building dept-icon"></i>`;
+                html += dept.deptName;
+                
+                nameCell.innerHTML = html;
+                tr.appendChild(nameCell);
+
+                // 排序
+                tr.innerHTML += `<td>${dept.sort}</td>`;
+
+                // 状态
+                const statusClass = dept.status === 1 ? 'status-enabled' : 'status-disabled';
+                const statusText = dept.status === 1 ? '启用' : '停用';
+                tr.innerHTML += `<td><span class="status-badge ${statusClass}">${statusText}</span></td>`;
+
+                // 创建时间
+                tr.innerHTML += `<td>${dept.createTime || '-'}</td>`;
+
+                // 操作
+                const actionCell = document.createElement('td');
+                actionCell.innerHTML = `
+                    <button class="action-btn btn-edit" onclick="showEditModal(${dept.id})">
+                        <i class="fas fa-edit"></i> 编辑
+                    </button>
+                    <button class="action-btn btn-delete" onclick="deleteDept(${dept.id})">
+                        <i class="fas fa-trash"></i> 删除
+                    </button>
+                `;
+                tr.appendChild(actionCell);
+
+                tbody.appendChild(tr);
+
+                // 递归渲染子部门
+                if (hasChildren) {
+                    dept.children.forEach(child => {
+                        renderTreeRows([child], tbody, level + 1);
+                    });
+                }
+            });
+        }
+
+        // 渲染分页组件
+        function renderPagination() {
+            const container = document.getElementById('paginationContainer');
+            
+            if (totalRecords === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'flex';
+            
+            // 更新信息
+            document.getElementById('totalRecords').textContent = totalRecords;
+            document.getElementById('totalPages').textContent = totalPages;
+            document.getElementById('currentPageNum').textContent = currentPage;
+            document.getElementById('pageSizeSelect').value = pageSize;
+            
+            // 更新按钮状态
+            document.getElementById('btnFirstPage').disabled = currentPage === 1;
+            document.getElementById('btnPrevPage').disabled = currentPage === 1;
+            document.getElementById('btnNextPage').disabled = currentPage === totalPages;
+            document.getElementById('btnLastPage').disabled = currentPage === totalPages;
+        }
+
+        // 跳转到指定页
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) {
+                return;
+            }
+            currentPage = page;
+            loadDeptPage();
+        }
+
+        // 改变每页显示条数
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSizeSelect').value);
+            currentPage = 1; // 重置到第一页
+            loadDeptPage();
+        }
+
+        // 切换部门折叠/展开
+        function toggleDept(event, deptId) {
+            event.stopPropagation();
+            event.preventDefault();
+            
+            const toggle = event.target.closest('.tree-toggle');
+            if (!toggle) return;
+            
+            const isExpanded = toggle.classList.contains('expanded');
+            
+            // 切换按钮状态
+            toggle.classList.toggle('expanded');
+            
+            // 查找并切换所有子行
+            toggleChildren(deptId, isExpanded);
+        }
+
+        // 递归切换子部门显示状态
+        function toggleChildren(parentId, hide) {
+            const tbody = document.getElementById('deptTableBody');
+            const rows = tbody.querySelectorAll('.dept-row');
+            
+            rows.forEach(row => {
+                const rowDeptId = parseInt(row.dataset.deptId);
+                const dept = deptList.find(d => d.id === rowDeptId);
+                
+                if (dept && dept.parentId === parentId) {
+                    if (hide) {
+                        row.classList.add('collapsed');
+                        // 递归隐藏子部门
+                        const hasChildren = dept.children && dept.children.length > 0;
+                        if (hasChildren) {
+                            toggleChildren(rowDeptId, true);
+                        }
+                    } else {
+                        row.classList.remove('collapsed');
+                    }
+                }
+            });
+        }
+
+        // 更新上级部门下拉框
+        function updateParentSelect(depts) {
+            const select = document.getElementById('parentId');
+            // 保留第一个选项（顶级部门）
+            select.innerHTML = '<option value="0">顶级部门</option>';
+
+            // 递归添加部门选项（树形结构）
+            function addDeptOptions(deptList, level = 0) {
+                deptList.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept.id;
+                    // 添加缩进表示层级
+                    const indent = '　'.repeat(level); // 全角空格
+                    option.textContent = indent + (level > 0 ? '└ ' : '') + dept.deptName;
+                    select.appendChild(option);
+                    
+                    // 如果有子部门，递归添加
+                    if (dept.children && dept.children.length > 0) {
+                        addDeptOptions(dept.children, level + 1);
+                    }
+                });
+            }
+
+            // 构建树形结构并添加
+            const tree = buildTree(depts, 0);
+            addDeptOptions(tree);
+        }
+
+        // 显示新增模态框
+        function showAddModal() {
+            document.getElementById('modalTitle').textContent = '新增部门';
+            document.getElementById('deptForm').reset();
+            document.getElementById('deptId').value = '';
+            deptModal.show();
+        }
+
+        // 显示编辑模态框
+        function showEditModal(id) {
+            const dept = deptList.find(d => d.id === id);
+            if (!dept) {
+                showToast('部门不存在', 'error');
+                return;
+            }
+
+            document.getElementById('modalTitle').textContent = '编辑部门';
+            document.getElementById('deptId').value = dept.id;
+            document.getElementById('parentId').value = dept.parentId || 0;
+            document.getElementById('deptName').value = dept.deptName;
+            document.getElementById('sort').value = dept.sort || 0;
+            document.getElementById('status').value = dept.status;
+
+            deptModal.show();
+        }
+
+        // 保存部门
+        function saveDept() {
+            const deptName = document.getElementById('deptName').value.trim();
+            if (!deptName) {
+                showToast('请输入部门名称', 'warning');
+                return;
+            }
+
+            const deptData = {
+                id: document.getElementById('deptId').value || null,
+                parentId: parseInt(document.getElementById('parentId').value),
+                deptName: deptName,
+                sort: parseInt(document.getElementById('sort').value),
+                status: parseInt(document.getElementById('status').value)
+            };
+
+            const isEdit = !!deptData.id;
+            const url = isEdit ? '/api/dept' : '/api/dept';
+            const method = isEdit ? 'put' : 'post';
+
+            axios({
+                method: method,
+                url: url,
+                data: deptData
+            })
+            .then(response => {
+                if (response.data.code === 200) {
+                    showToast(isEdit ? '修改成功' : '新增成功', 'success');
+                    deptModal.hide();
+                    loadDeptPage(); // 刷新分页数据
+                } else {
+                    showToast(response.data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('保存失败:', error);
+                showToast('保存失败', 'error');
+            });
+        }
+
+        // 删除部门
+        function deleteDept(id) {
+            console.log('=== 开始删除部门 ===', id);
+            
+            const dept = deptList.find(d => d.id === id);
+            if (!dept) {
+                console.error('部门不存在:', id);
+                showToast('部门不存在', 'error');
+                return;
+            }
+
+            console.log('找到部门信息:', dept);
+
+            // 先查询是否有子部门（从后端查询确保准确性）
+            axios.get(`/api/dept/parent/${id}`)
+                .then(response => {
+                    console.log('查询子部门响应:', response.data);
+                    
+                    if (response.data.code === 200) {
+                        const children = response.data.data || [];
+                        console.log('子部门数量:', children.length);
+                        
+                        if (children.length > 0) {
+                            // 有子部门，阻止删除
+                            console.log('有子部门，阻止删除');
+                            showConfirmDialog(
+                                '删除失败',
+                                `部门"${dept.deptName}"下还有 ${children.length} 个子部门，请先删除或转移子部门！`,
+                                null,  // 不需要确认按钮
+                                true   // 只显示信息，不执行操作
+                            );
+                            return;
+                        }
+
+                        // 没有子部门，显示删除确认
+                        console.log('没有子部门，显示删除确认对话框');
+                        showConfirmDialog(
+                            '删除确认',
+                            `确定要删除部门"${dept.deptName}"吗？此操作不可恢复！`,
+                            function() {
+                                console.log('=== 用户点击了确定按钮，开始执行删除 ===');
+                                // 执行删除
+                                axios.delete(`/api/dept/${id}`)
+                                    .then(response => {
+                                        console.log('删除响应:', response.data);
+                                        if (response.data.code === 200) {
+                                            showToast('删除成功', 'success');
+                                            loadDeptPage(); // 刷新分页数据
+                                        } else {
+                                            // 后端返回错误信息
+                                            console.error('删除失败:', response.data.message);
+                                            showToast(response.data.message || '删除失败', 'error');
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('删除请求异常:', error);
+                                        // 显示详细错误信息
+                                        const errorMsg = error.response?.data?.message || error.message || '删除失败';
+                                        showToast(errorMsg, 'error');
+                                    });
+                            }
+                        );
+                    }
+                })
+                .catch(error => {
+                    console.error('查询子部门失败:', error);
+                    showToast('查询失败', 'error');
+                });
+        }
+
+        // 显示提示消息
+        function showToast(message, type = 'info') {
+            const colors = {
+                success: '#34C759',
+                error: '#FF3B30',
+                warning: '#FF9500',
+                info: '#007AFF'
+            };
+
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 24px;
+                right: 24px;
+                background: white;
+                padding: 16px 20px;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                z-index: 9999;
+                animation: slideInRight 0.3s ease;
+                border-left: 4px solid ${colors[type]};
+            `;
+
+            toast.innerHTML = `
+                <i class="fas ${icons[type]}" style="color: ${colors[type]}; font-size: 20px;"></i>
+                <span style="font-size: 15px; color: #1d1d1f; font-weight: 500;">${message}</span>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // 显示确认对话框
+        function showConfirmDialog(title, message, onConfirm, infoOnly = false) {
+            console.log('=== showConfirmDialog 被调用 ===');
+            console.log('标题:', title);
+            console.log('消息:', message);
+            console.log('回调函数:', onConfirm);
+            console.log('信息模式:', infoOnly);
+            
+            // 创建遮罩层
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.style.pointerEvents = 'none';  // 遮罩层不阻止点击
+            
+            // 根据模式选择图标
+            const iconClass = infoOnly ? 'fa-info-circle' : 'fa-exclamation-triangle';
+            const iconBg = infoOnly 
+                ? 'linear-gradient(135deg, #007AFF 0%, #5856D6 100%)'  // 蓝色（信息）
+                : 'linear-gradient(135deg, #FF9500 0%, #FF3B30 100%)';  // 橙红（警告）
+            
+            // 创建对话框
+            overlay.innerHTML = `
+                <div class="modal-dialog" style="pointer-events: auto;">
+                    <div class="modal-header">
+                        <div class="modal-icon" style="background: ${iconBg}">
+                            <i class="fas ${iconClass}"></i>
+                        </div>
+                        <div class="modal-title">${title}</div>
+                    </div>
+                    <div class="modal-message">${message}</div>
+                    <div class="modal-footer">
+                        ${infoOnly 
+                            ? '<button class="modal-btn modal-btn-cancel" id="modalClose">我知道了</button>'
+                            : '<button class="modal-btn modal-btn-cancel" id="modalCancel">取消</button>'
+                        }
+                        ${!infoOnly ? '<button class="modal-btn modal-btn-confirm" id="modalConfirm">确定</button>' : ''}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            console.log('对话框已添加到DOM');
+            
+            // 等待DOM渲染完成
+            setTimeout(() => {
+                if (infoOnly) {
+                    // 信息提示模式：只有一个关闭按钮
+                    console.log('绑定关闭按钮');
+                    const closeBtn = document.getElementById('modalClose');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            console.log('点击了关闭按钮');
+                            document.body.removeChild(overlay);
+                        });
+                        console.log('关闭按钮已绑定');
+                    }
+                } else {
+                    // 确认对话框模式
+                    console.log('绑定取消和确定按钮');
+                    
+                    // 绑定取消按钮
+                    const cancelBtn = document.getElementById('modalCancel');
+                    if (cancelBtn) {
+                        cancelBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            console.log('点击了取消按钮');
+                            document.body.removeChild(overlay);
+                        });
+                        console.log('取消按钮已绑定');
+                    }
+                    
+                    // 绑定确认按钮
+                    const confirmBtn = document.getElementById('modalConfirm');
+                    if (confirmBtn) {
+                        confirmBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            console.log('=== 点击了确定按钮 ===');
+                            document.body.removeChild(overlay);
+                            if (onConfirm) {
+                                console.log('执行回调函数');
+                                onConfirm();
+                            } else {
+                                console.error('回调函数不存在！');
+                            }
+                        });
+                        console.log('确定按钮已绑定，按钮元素:', confirmBtn);
+                    } else {
+                        console.error('找不到确定按钮！');
+                    }
+                }
+            }, 100);
+            
+            // 禁用点击遮罩层关闭
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    console.log('点击了遮罩层（已禁用）');
+                    // 不关闭，防止误操作
+                }
+            });
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    opacity: 0;
+                    transform: translateX(100px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+            
+            @keyframes slideOutRight {
+                from {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateX(100px);
+                }
+            }
+            
+            /* 确认对话框样式 */
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 99999 !important;  /* 提高优先级 */
+                animation: fadeIn 0.2s ease;
+                backdrop-filter: blur(4px);  /* 添加模糊效果 */
+            }
+            
+            .modal-dialog {
+                background: #ffffff;
+                border-radius: 16px;
+                padding: 24px;
+                max-width: 400px;
+                width: 90%;
+                box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+                animation: slideUp 0.3s ease;
+                position: relative;
+                z-index: 100000 !important;  /* 对话框在遮罩层之上 */
+            }
+            
+            .modal-header {
+                text-align: center;
+                margin-bottom: 16px;
+            }
+            
+            .modal-icon {
+                width: 64px;
+                height: 64px;
+                background: linear-gradient(135deg, #FF9500 0%, #FF3B30 100%);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 16px;
+                font-size: 32px;
+                color: #ffffff;
+            }
+            
+            .modal-title {
+                font-size: 20px;
+                font-weight: 600;
+                color: #1d1d1f;
+                margin-bottom: 8px;
+            }
+            
+            .modal-message {
+                font-size: 15px;
+                color: #86868b;
+                text-align: center;
+                margin-bottom: 24px;
+                line-height: 1.6;
+            }
+            
+            .modal-footer {
+                display: flex;
+                gap: 12px;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .modal-btn {
+                flex: 1;
+                padding: 12px 20px;
+                border: none;
+                border-radius: 10px;
+                font-size: 15px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                position: relative;
+                z-index: 2;
+                pointer-events: auto;  /* 确保按钮可以接收点击事件 */
+            }
+            
+            .modal-btn-cancel {
+                background: #f5f5f7;
+                color: #1d1d1f;
+            }
+            
+            .modal-btn-cancel:hover {
+                background: #e5e5e7;
+            }
+            
+            .modal-btn-cancel:active {
+                background: #d1d1d6;
+            }
+            
+            .modal-btn-confirm {
+                background: linear-gradient(135deg, #FF3B30 0%, #FF2D55 100%);
+                color: #ffffff;
+            }
+            
+            .modal-btn-confirm:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+            }
+            
+            .modal-btn-confirm:active {
+                transform: translateY(0);
+                box-shadow: 0 2px 8px rgba(255, 59, 48, 0.4);
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            @keyframes slideUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

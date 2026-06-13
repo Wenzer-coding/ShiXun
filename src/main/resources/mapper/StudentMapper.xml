@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eutmp.app.mapper.StudentMapper">
+    
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.eutmp.app.bean.Student">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="student_no" property="studentNo" jdbcType="VARCHAR"/>
+        <result column="student_name" property="studentName" jdbcType="VARCHAR"/>
+        <result column="gender" property="gender" jdbcType="TINYINT"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="class_id" property="classId" jdbcType="BIGINT"/>
+        <result column="class_name" property="className" jdbcType="VARCHAR"/>
+        <result column="enroll_year" property="enrollYear" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        s.id, s.student_no, s.student_name, s.gender, s.phone, s.email, s.class_id, s.enroll_year, s.status, s.create_time, s.update_time, c.class_name as class_name
+    </sql>
+    
+    <!-- 根据ID查询学生 -->
+    <select id="selectStudentById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM student s LEFT JOIN class_info c ON s.class_id = c.id
+        WHERE s.id = #{id}
+    </select>
+
+    <!-- 条件查询学生列表 -->
+    <select id="selectStudentList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM student s LEFT JOIN class_info c ON s.class_id = c.id
+        <where>
+            <if test="studentNo != null and studentNo != ''">
+                AND s.student_no LIKE CONCAT('%', #{studentNo}, '%')
+            </if>
+            <if test="studentName != null and studentName != ''">
+                AND s.student_name LIKE CONCAT('%', #{studentName}, '%')
+            </if>
+            <if test="classId != null">
+                AND s.class_id = #{classId}
+            </if>
+            <if test="enrollYear != null">
+                AND s.enroll_year = #{enrollYear}
+            </if>
+            <if test="status != null">
+                AND s.status = #{status}
+            </if>
+        </where>
+        ORDER BY s.create_time DESC
+    </select>
+    
+    <!-- 新增学生 -->
+    <insert id="insertStudent" parameterType="com.eutmp.app.bean.Student" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO student (
+            student_no, student_name, gender, phone, email, class_id, enroll_year, status, create_time, update_time
+        ) VALUES (
+            #{studentNo}, #{studentName}, #{gender}, #{phone}, #{email}, #{classId}, #{enrollYear}, #{status}, #{createTime}, #{updateTime}
+        )
+    </insert>
+    
+    <!-- 修改学生 -->
+    <update id="updateStudent" parameterType="com.eutmp.app.bean.Student">
+        UPDATE student
+        <set>
+            <if test="studentNo != null">student_no = #{studentNo},</if>
+            <if test="studentName != null">student_name = #{studentName},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="classId != null">class_id = #{classId},</if>
+            <if test="enrollYear != null">enroll_year = #{enrollYear},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 删除学生 -->
+    <delete id="deleteStudentById">
+        DELETE FROM student WHERE id = #{id}
+    </delete>
+    
+    <!-- 批量删除学生 -->
+    <delete id="deleteStudentByIds">
+        DELETE FROM student WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <!-- 校验学号是否唯一 -->
+    <select id="checkStudentNoUnique" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM student s LEFT JOIN class_info c ON s.class_id = c.id
+        WHERE s.student_no = #{studentNo}
+        LIMIT 1
+    </select>
+    
+</mapper>

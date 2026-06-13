@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考勤管理 - 高校实训管理平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: #fff; color: #1d1d1f; }
+        .content-card { background: #fff; padding: 32px; }
+        .card-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e5e5e7; }
+        .card-title { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+        .card-subtitle { font-size: 14px; color: #86868b; }
+        .toolbar { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+        .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 12px; }
+        .search-input, .search-select { border: 1px solid #d1d1d6; border-radius: 8px; padding: 8px 12px; font-size: 14px; }
+        .btn-icon { border: 1px solid #d1d1d6; background: #fff; padding: 8px 16px; border-radius: 8px; cursor: pointer; color: #007AFF; }
+        .btn-icon:hover { background: #f5f5f7; }
+        .btn-icon-primary { background: #007AFF; color: #fff; border-color: #007AFF; }
+        .btn-icon-danger { color: #FF3B30; }
+        .table th { font-weight: 600; font-size: 13px; border-bottom: 2px solid #e5e5e7; padding: 12px 16px; background: #fafafa; }
+        .table td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+        .table tbody tr:hover { background: #f8f9fa; }
+        .status-badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; }
+        .status-1 { background: #e6f7ed; color: #00A862; }
+        .status-2 { background: #fff3e0; color: #f57c00; }
+        .status-3 { background: #fce4ec; color: #c2185b; }
+        .status-4 { background: #ffe5e5; color: #FF3B30; }
+        .status-5 { background: #e3f2fd; color: #1976d2; }
+        .btn-action { border: none; background: none; cursor: pointer; padding: 6px 10px; border-radius: 6px; }
+        .btn-edit { color: #007AFF; }
+        .btn-edit:hover { background: #e8f0ff; }
+        .btn-delete { color: #FF3B30; }
+        .btn-delete:hover { background: #ffe5e5; }
+        .pagination { justify-content: flex-end; margin-top: 20px; }
+        .page-link { border: none; color: #007AFF; padding: 8px 12px; margin: 0 2px; border-radius: 6px; }
+        .page-item.active .page-link { background: #007AFF; color: #fff; }
+        .modal-content { border: none; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
+        .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-radius: 12px 12px 0 0; padding: 20px 24px; }
+        .modal-body { padding: 24px; }
+        .form-label { font-weight: 500; margin-bottom: 8px; }
+        .form-control, .form-select { border: 1px solid #d1d1d6; border-radius: 8px; padding: 10px 12px; }
+        .form-control:focus, .form-select:focus { border-color: #007AFF; box-shadow: 0 0 0 3px rgba(0,122,255,0.1); }
+        .btn-modal { padding: 10px 24px; border-radius: 8px; border: none; cursor: pointer; }
+        .btn-modal-primary { background: #007AFF; color: #fff; }
+        .btn-modal-secondary { background: #f5f5f7; }
+        .loading, .empty-state { text-align: center; padding: 40px; color: #86868b; }
+    </style>
+</head>
+<body>
+    <div class="content-card">
+        <div class="card-header">
+            <h1 class="card-title"><i class="fas fa-clock me-2"></i>考勤管理</h1>
+            <p class="card-subtitle">管理学生实训考勤，记录签到、迟到、缺勤等状态</p>
+        </div>
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <select class="search-select" id="planSelect"><option value="">全部开班</option></select>
+                <select class="search-select" id="statusSelect">
+                    <option value="">全部状态</option>
+                    <option value="1">正常</option>
+                    <option value="2">迟到</option>
+                    <option value="3">早退</option>
+                    <option value="4">缺勤</option>
+                    <option value="5">请假</option>
+                </select>
+                <input type="date" class="search-input" id="dateInput">
+                <button class="btn-icon" onclick="searchData()"><i class="fas fa-search"></i> 查询</button>
+                <button class="btn-icon" onclick="resetSearch()"><i class="fas fa-redo"></i> 重置</button>
+                <button class="btn-icon" onclick="loadData()" style="color:#5856D6;"><i class="fas fa-sync-alt"></i> 刷新</button>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn-icon" style="color:#34C759;border-color:#34C759;" onclick="showQrModal()"><i class="fas fa-qrcode"></i> 发起签到</button>
+                <button class="btn-icon btn-icon-primary" onclick="showAddModal()"><i class="fas fa-plus"></i> 新增考勤</button>
+                <button class="btn-icon btn-icon-danger" id="batchDeleteBtn" onclick="batchDelete()" style="display:none;"><i class="fas fa-trash"></i> 批量删除</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width:50px;"><input type="checkbox" class="form-check-input" id="checkAll" onchange="toggleCheckAll()"></th>
+                        <th>开班名称</th>
+                        <th>学生姓名</th>
+                        <th>学号</th>
+                        <th>考勤日期</th>
+                        <th>签到时间</th>
+                        <th>考勤状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"><tr><td colspan="8" class="loading"><i class="fas fa-spinner"></i></td></tr></tbody>
+            </table>
+        </div>
+        <nav><ul class="pagination" id="pagination"></ul></nav>
+    </div>
+
+    <div class="modal fade" id="attendanceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">新增考勤</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="attendanceForm">
+                        <input type="hidden" id="attendanceId">
+                        <div class="mb-3">
+                            <label class="form-label">实训开班 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="planId" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">学生 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="stuId" required>
+                                <option value="">请选择学生</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">考勤日期 <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="attendDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">考勤状态 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="signStatus" required>
+                                <option value="1">正常</option>
+                                <option value="2">迟到</option>
+                                <option value="3">早退</option>
+                                <option value="4">缺勤</option>
+                                <option value="5">请假</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal btn-modal-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn-modal btn-modal-primary" onclick="saveAttendance()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="qrModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header" style="background:linear-gradient(135deg,#34C759,#00A862);">
+                    <h5 class="modal-title"><i class="fas fa-qrcode me-2"></i>签到二维码</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center" style="padding:32px;">
+                    <div class="mb-3">
+                        <label class="form-label">实训开班 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="qrPlanId" required>
+                            <option value="">请选择开班</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">考勤日期 <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="qrDate" required>
+                    </div>
+                    <div id="qrCodeContainer" style="display:none;margin-top:16px;">
+                        <div style="background:#fff;border-radius:12px;padding:16px;display:inline-block;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                            <img id="qrCodeImg" style="width:280px;height:280px;" alt="二维码">
+                        </div>
+                        <p style="margin-top:12px;color:#86868b;font-size:13px;">
+                            <i class="fas fa-info-circle me-1"></i>学生扫描二维码即可签到
+                        </p>
+                    </div>
+                    <button class="btn-modal btn-modal-primary mt-3" onclick="generateQrCode()" id="generateQrBtn" style="background:#34C759;">
+                        <i class="fas fa-qrcode me-1"></i> 生成二维码
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="statsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background:linear-gradient(135deg,#667eea,#764ba2);">
+                    <h5 class="modal-title"><i class="fas fa-chart-pie me-2"></i>考勤统计</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding:24px;">
+                    <div class="row text-center mb-4">
+                        <div class="col-4">
+                            <div style="background:#e6f7ed;border-radius:12px;padding:16px;">
+                                <div style="font-size:28px;font-weight:700;color:#00A862;" id="statsSignedCount">0</div>
+                                <div style="font-size:13px;color:#00A862;">已签到</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div style="background:#e3f2fd;border-radius:12px;padding:16px;">
+                                <div style="font-size:28px;font-weight:700;color:#1976d2;" id="statsEnrolledCount">0</div>
+                                <div style="font-size:13px;color:#1976d2;">应签到人数</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div style="background:#fff3e0;border-radius:12px;padding:16px;">
+                                <div style="font-size:28px;font-weight:700;color:#f57c00;" id="statsUnsignedCount">0</div>
+                                <div style="font-size:13px;color:#f57c00;">未签到</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul class="nav nav-tabs mb-3" id="statsTab">
+                        <li class="nav-item"><a class="nav-link active" href="#" onclick="switchStatsTab('signed',event)">已签到</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" onclick="switchStatsTab('unsigned',event)">未签到</a></li>
+                    </ul>
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>学号</th>
+                                    <th>姓名</th>
+                                    <th id="statsTimeHeader">签到时间</th>
+                                </tr>
+                            </thead>
+                            <tbody id="statsTableBody">
+                                <tr><td colspan="3" class="loading"><i class="fas fa-spinner"></i></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        let currentPage = 1, pageSize = 10, total = 0, selectedIds = [];
+        document.addEventListener('DOMContentLoaded', () => { loadPlans(); loadStudents(); loadData(); });
+        function loadPlans() {
+            axios.get('/api/plan/all').then(res => {
+                if (res.data.code === 200) {
+                    const options = res.data.data.map(p => `<option value="${p.id}">${p.planName}</option>`).join('');
+                    document.getElementById('planSelect').innerHTML = '<option value="">全部开班</option>' + options;
+                    document.getElementById('planId').innerHTML = '<option value="">请选择开班</option>' + options;
+                }
+            });
+        }
+        function loadStudents(targetId) {
+            axios.get('/api/student/all').then(res => {
+                if (res.data.code === 200) {
+                    const options = res.data.data.map(s => `<option value="${s.id}">${s.studentNo} - ${s.studentName}</option>`).join('');
+                    document.getElementById('stuId').innerHTML = '<option value="">请选择学生</option>' + options;
+                    if (targetId) document.getElementById('stuId').value = targetId;
+                }
+            });
+        }
+        function loadData() {
+            axios.get('/api/attendance/list', { params: { pageNum: currentPage, pageSize, planId: document.getElementById('planSelect').value, signStatus: document.getElementById('statusSelect').value, attendDate: document.getElementById('dateInput').value } }).then(res => {
+                if (res.data.code === 200) { renderTable(res.data.data.list); total = res.data.data.total; renderPagination(); }
+            });
+        }
+        function renderTable(list) {
+            const tbody = document.getElementById('tableBody');
+            if (!list || list.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i><p>暂无数据</p></td></tr>'; return; }
+            const statusMap = {1: '正常', 2: '迟到', 3: '早退', 4: '缺勤', 5: '请假'};
+            tbody.innerHTML = list.map(item => `<tr><td><input type="checkbox" class="form-check-input row-checkbox" value="${item.id}" onchange="updateSelected()"></td><td>${item.planName}</td><td>${item.studentName}</td><td>${item.studentNo}</td><td>${item.attendDate}</td><td>${item.signTime||'-'}</td><td><span class="status-badge status-${item.signStatus}">${statusMap[item.signStatus]}</span></td><td><button class="btn-action btn-edit" onclick="showEditModal(${item.id})"><i class="fas fa-edit"></i></button><button class="btn-action btn-delete" onclick="deleteAttendance(${item.id})"><i class="fas fa-trash"></i></button><button class="btn-action" style="color:#34C759;" onclick="showStats(${item.planId},'${item.attendDate}')" title="查看签到统计"><i class="fas fa-chart-bar"></i></button></td></tr>`).join('');
+        }
+        function renderPagination() {
+            const totalPages = Math.ceil(total / pageSize);
+            const pagination = document.getElementById('pagination');
+            if (totalPages <= 1) { pagination.innerHTML = ''; return; }
+            let html = `<li class="page-item ${currentPage===1?'disabled':''}"><a class="page-link" href="#" onclick="changePage(${currentPage-1})">上一页</a></li>`;
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) html += `<li class="page-item ${i===currentPage?'active':''}"><a class="page-link" href="#" onclick="changePage(${i})">${i}</a></li>`;
+            }
+            html += `<li class="page-item ${currentPage===totalPages?'disabled':''}"><a class="page-link" href="#" onclick="changePage(${currentPage+1})">下一页</a></li>`;
+            pagination.innerHTML = html;
+        }
+        function changePage(page) { if (page < 1) return; currentPage = page; loadData(); }
+        function searchData() { currentPage = 1; loadData(); }
+        function resetSearch() { document.getElementById('planSelect').value = ''; document.getElementById('statusSelect').value = ''; document.getElementById('dateInput').value = ''; currentPage = 1; loadData(); }
+        function showAddModal() { document.getElementById('modalTitle').textContent = '新增考勤'; document.getElementById('attendanceForm').reset(); document.getElementById('attendanceId').value = ''; loadStudents(); new bootstrap.Modal(document.getElementById('attendanceModal')).show(); }
+        function showEditModal(id) {
+            axios.get(`/api/attendance/${id}`).then(res => {
+                if (res.data.code === 200) {
+                    const data = res.data.data;
+                    document.getElementById('modalTitle').textContent = '编辑考勤';
+                    document.getElementById('attendanceId').value = data.id;
+                    document.getElementById('planId').value = data.planId;
+                    loadStudents(data.stuId);
+                    document.getElementById('attendDate').value = data.attendDate;
+                    document.getElementById('signStatus').value = data.signStatus;
+                    new bootstrap.Modal(document.getElementById('attendanceModal')).show();
+                }
+            });
+        }
+        function saveAttendance() {
+            const id = document.getElementById('attendanceId').value;
+            const data = { planId: parseInt(document.getElementById('planId').value), stuId: parseInt(document.getElementById('stuId').value), attendDate: document.getElementById('attendDate').value, signStatus: parseInt(document.getElementById('signStatus').value) };
+            if (!data.planId || !data.stuId || !data.attendDate) { alert('请填写必填字段'); return; }
+            const method = id ? 'put' : 'post';
+            if (id) data.id = parseInt(id);
+            axios[method]('/api/attendance', data).then(res => { if (res.data.code === 200) { alert(id ? '修改成功' : '新增成功'); bootstrap.Modal.getInstance(document.getElementById('attendanceModal')).hide(); loadData(); } else { alert(res.data.message || '操作失败'); } });
+        }
+        function deleteAttendance(id) { if (!confirm('确定要删除该考勤记录吗？')) return; axios.delete(`/api/attendance/${id}`).then(res => { if (res.data.code === 200) { alert('删除成功'); loadData(); } else { alert(res.data.message || '删除失败'); } }); }
+        function toggleCheckAll() { document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = document.getElementById('checkAll').checked); updateSelected(); }
+        function updateSelected() { selectedIds = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value); document.getElementById('batchDeleteBtn').style.display = selectedIds.length > 0 ? 'inline-flex' : 'none'; }
+        function batchDelete() { if (selectedIds.length === 0 || !confirm(`确定要删除选中的 ${selectedIds.length} 条考勤吗？`)) return; axios.delete('/api/attendance/batch', { data: selectedIds.map(id => parseInt(id)) }).then(res => { if (res.data.code === 200) { alert('批量删除成功'); document.getElementById('checkAll').checked = false; loadData(); } }); }
+
+        function showQrModal() {
+            axios.get('/api/plan/all').then(res => {
+                if (res.data.code === 200) {
+                    const options = res.data.data.map(p => `<option value="${p.id}">${p.planName}</option>`).join('');
+                    document.getElementById('qrPlanId').innerHTML = '<option value="">请选择开班</option>' + options;
+                }
+            });
+            document.getElementById('qrDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('qrCodeContainer').style.display = 'none';
+            new bootstrap.Modal(document.getElementById('qrModal')).show();
+        }
+
+        function generateQrCode() {
+            const planId = document.getElementById('qrPlanId').value;
+            const date = document.getElementById('qrDate').value;
+            if (!planId || !date) { alert('请选择开班和考勤日期'); return; }
+            document.getElementById('qrCodeImg').src = '/api/attendance/qrcode?planId=' + planId + '&date=' + date + '&t=' + Date.now();
+            document.getElementById('qrCodeContainer').style.display = 'block';
+        }
+
+        let statsData = null;
+        function showStats(planId, date) {
+            document.getElementById('statsSignedCount').textContent = '...';
+            document.getElementById('statsEnrolledCount').textContent = '...';
+            document.getElementById('statsUnsignedCount').textContent = '...';
+            document.getElementById('statsTableBody').innerHTML = '<tr><td colspan="3" class="loading"><i class="fas fa-spinner"></i></td></tr>';
+            new bootstrap.Modal(document.getElementById('statsModal')).show();
+
+            axios.get('/api/attendance/stats', { params: { planId, date } }).then(res => {
+                if (res.data.code === 200) {
+                    statsData = res.data.data;
+                    const signedList = statsData.signed || [];
+                    const notSignedList = statsData.notSigned || [];
+                    document.getElementById('statsSignedCount').textContent = signedList.length;
+                    document.getElementById('statsEnrolledCount').textContent = statsData.totalEnrolled || 0;
+                    document.getElementById('statsUnsignedCount').textContent = notSignedList.length;
+                    renderStatsSigned();
+                }
+            });
+        }
+
+        function renderStatsSigned() {
+            document.getElementById('statsTimeHeader').textContent = '签到时间';
+            const signedList = statsData.signed || [];
+            const statusMap = {1: '正常', 2: '迟到', 3: '早退', 4: '缺勤', 5: '请假'};
+            const tbody = document.getElementById('statsTableBody');
+            if (signedList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-state"><i class="fas fa-inbox"></i><p>暂无签到记录</p></td></tr>';
+            } else {
+                tbody.innerHTML = signedList.map(item =>
+                    `<tr><td>${item.studentNo}</td><td>${item.studentName}</td><td>${item.signTime||'-'}</td></tr>`
+                ).join('');
+            }
+        }
+
+        function renderStatsUnsigned() {
+            document.getElementById('statsTimeHeader').textContent = '状态';
+            const notSignedList = statsData.notSigned || [];
+            const tbody = document.getElementById('statsTableBody');
+            if (notSignedList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-state"><i class="fas fa-check-circle" style="color:#00A862;"></i><p>全部学生已签到</p></td></tr>';
+            } else {
+                tbody.innerHTML = notSignedList.map(item =>
+                    `<tr><td>${item.studentNo}</td><td>${item.studentName}</td><td><span class="status-badge status-4">未签到</span></td></tr>`
+                ).join('');
+            }
+        }
+
+        function switchStatsTab(tab, event) {
+            if (event) event.preventDefault();
+            document.querySelectorAll('#statsTab .nav-link').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+            if (tab === 'signed') renderStatsSigned();
+            else renderStatsUnsigned();
+        }
+    </script>
+</body>
+</html>

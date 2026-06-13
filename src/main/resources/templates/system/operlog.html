@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>操作日志 - 高校实训管理平台</title>
+    <!-- Bootstrap 5.3.0 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6.4.0 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .content-card {
+            background: #ffffff;
+            border-radius: 0;
+            padding: 32px;
+            box-shadow: none;
+            min-height: 100vh;
+        }
+
+        .card-header {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin: 0 0 4px 0;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: #86868b;
+            margin: 0;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-input, .search-select {
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .search-input {
+            min-width: 150px;
+        }
+
+        .search-select {
+            min-width: 120px;
+            cursor: pointer;
+        }
+
+        .search-input:focus, .search-select:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .btn-icon {
+            border: 1px solid #d1d1d6;
+            background: #ffffff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+            color: #007AFF;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-icon:hover {
+            background-color: #f5f5f7;
+            border-color: #007AFF;
+        }
+
+        .btn-icon-danger {
+            color: #FF3B30;
+        }
+
+        .btn-icon-danger:hover {
+            background-color: #ffe5e5;
+            border-color: #FF3B30;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: #f5f5f7;
+            border: none;
+            font-weight: 600;
+            color: #1d1d1f;
+            padding: 12px 16px;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            padding: 12px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background-color: #e8f5e9;
+            color: #34C759;
+        }
+
+        .status-fail {
+            background-color: #ffebee;
+            color: #FF3B30;
+        }
+
+        .type-badge {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .type-add { background: #e3f2fd; color: #1976d2; }
+        .type-edit { background: #fff3e0; color: #f57c00; }
+        .type-delete { background: #ffebee; color: #d32f2f; }
+        .type-query { background: #f3e5f5; color: #7b1fa2; }
+        .type-import { background: #e8f5e9; color: #388e3c; }
+        .type-export { background: #fce4ec; color: #c2185b; }
+
+        .action-btn {
+            border: none;
+            background: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            background-color: #f5f5f7;
+        }
+
+        .btn-delete {
+            color: #FF3B30;
+        }
+
+        .checkbox-cell {
+            width: 50px;
+        }
+
+        /* 分页组件样式 */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e5e7;
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: #86868b;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination-btn {
+            padding: 8px 12px;
+            border: 1px solid #d1d1d6;
+            background: #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            color: #1d1d1f;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background-color: #f5f5f7;
+            border-color: #007AFF;
+            color: #007AFF;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-size-select {
+            padding: 8px 12px;
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .page-size-select:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 内容卡片 -->
+        <div class="content-card">
+            <!-- 卡片头部 -->
+            <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-history me-2" style="color: #007AFF;"></i>操作日志</h2>
+                <p class="card-subtitle">查看系统操作记录和审计日志</p>
+            </div>
+
+            <!-- 工具栏 -->
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <input type="text" class="search-input" id="searchUsername" placeholder="操作账号...">
+                    <input type="date" class="search-input" id="searchDate">
+                    <button class="btn-icon" onclick="searchLogs()">
+                        <i class="fas fa-search"></i>
+                        <span>查询</span>
+                    </button>
+                </div>
+                <div class="toolbar-right">
+                    <button class="btn-icon btn-icon-danger" onclick="batchDelete()" id="btnBatchDelete" style="display: none;">
+                        <i class="fas fa-trash-alt"></i>
+                        <span>批量删除</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 日志列表表格 -->
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-cell">
+                            <input type="checkbox" id="checkAll" onchange="toggleCheckAll()">
+                        </th>
+                        <th style="width: 100px;">操作账号</th>
+                        <th style="width: 100px;">操作人</th>
+                        <th style="width: 120px;">操作模块</th>
+                        <th style="width: 80px;">操作类型</th>
+                        <th style="width: 150px;">操作描述</th>
+                        <th style="width: 100px;">IP地址</th>
+                        <th style="width: 80px;">状态</th>
+                        <th style="width: 80px;">耗时</th>
+                        <th style="width: 100px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="logTableBody">
+                    <!-- 数据将通过JavaScript动态加载 -->
+                </tbody>
+            </table>
+
+            <!-- 分页组件 -->
+            <div class="pagination-container" id="paginationContainer" style="display: none;">
+                <div class="pagination-info">
+                    <span>共 <strong id="totalRecords">0</strong> 条记录，</span>
+                    <span>共 <strong id="totalPages">0</strong> 页，</span>
+                    <span>每页显示
+                        <select class="page-size-select" id="pageSizeSelect" onchange="changePageSize()">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    条
+                </div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn" id="btnFirstPage" onclick="goToPage(1)">
+                        <i class="fas fa-angle-double-left"></i>
+                        <span>首页</span>
+                    </button>
+                    <button class="pagination-btn" id="btnPrevPage" onclick="goToPage(currentPage - 1)">
+                        <i class="fas fa-angle-left"></i>
+                        <span>上一页</span>
+                    </button>
+                    <span style="font-size: 14px; color: #1d1d1f;">
+                        第 <strong id="currentPageNum">1</strong> 页
+                    </span>
+                    <button class="pagination-btn" id="btnNextPage" onclick="goToPage(currentPage + 1)">
+                        <span>下一页</span>
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                    <button class="pagination-btn" id="btnLastPage" onclick="goToPage(totalPages)">
+                        <span>尾页</span>
+                        <i class="fas fa-angle-double-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        let logList = [];
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalPages = 0;
+        let totalRecords = 0;
+        let selectedIds = [];
+        let userPermissions = []; // 当前用户的权限标识列表
+
+        // 页面加载时执行
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserPermissions(); // 先加载用户权限
+        });
+
+        // 加载当前用户的权限
+        function loadUserPermissions() {
+            axios.get('/api/auth/userinfo')
+                .then(response => {
+                    console.log('=== 用户信息响应 ===', response.data);
+                    if (response.data.code === 200) {
+                        userPermissions = response.data.data.permissions || [];
+                        console.log('=== 当前用户权限列表 ===', userPermissions);
+                        console.log('=== 权限数量 ===', userPermissions.length);
+                        console.log('=== 是否有 sys:log:remove ===', userPermissions.includes('sys:log:remove'));
+                        
+                        // 控制工具栏按钮显示
+                        updateToolbarButtons();
+                        
+                        // 加载完权限后再加载日志数据
+                        loadLogPage();
+                    }
+                })
+                .catch(error => {
+                    console.error('加载用户权限失败:', error);
+                    userPermissions = [];
+                    updateToolbarButtons();
+                    loadLogPage();
+                });
+        }
+
+        // 检查是否有某个权限
+        function hasPermission(permKey) {
+            // 超级管理员判断：必须同时满足两个条件
+            // 1. 有 system:manage 权限
+            // 2. 有所有按钮权限（至少要有增删改权限）
+            const isSuperAdmin = userPermissions.includes('system:manage') && 
+                                 userPermissions.includes('sys:user:add') &&
+                                 userPermissions.includes('sys:user:edit') &&
+                                 userPermissions.includes('sys:user:remove');
+            
+            console.log(`=== 权限检查: ${permKey} ===`);
+            console.log('  - 是否为超级管理员:', isSuperAdmin);
+            console.log('  - 是否有该权限:', userPermissions.includes(permKey));
+            console.log('  - 检查结果:', isSuperAdmin || userPermissions.includes(permKey));
+            
+            if (isSuperAdmin) {
+                return true;
+            }
+            
+            // 普通用户：检查是否有具体权限
+            return userPermissions.includes(permKey);
+        }
+
+        // 更新工具栏按钮显示状态
+        function updateToolbarButtons() {
+            // 批量删除按钮默认隐藏，有选中项且有权限时才显示
+            const batchDeleteBtn = document.getElementById('btnBatchDelete');
+            batchDeleteBtn.style.display = 'none';
+        }
+
+        // 加载日志分页数据
+        function loadLogPage() {
+            const username = document.getElementById('searchUsername').value.trim();
+            const createTime = document.getElementById('searchDate').value;
+
+            axios.get('/api/operlog/page', {
+                params: {
+                    pageNum: currentPage,
+                    pageSize: pageSize,
+                    username: username,
+                    createTime: createTime
+                }
+            })
+            .then(response => {
+                if (response.data.code === 200) {
+                    const pageData = response.data.data;
+                    logList = pageData.list || [];
+                    totalPages = pageData.pages || 0;
+                    totalRecords = pageData.total || 0;
+                    
+                    renderLogTable(logList);
+                    renderPagination();
+                    selectedIds = [];
+                    updateBatchDeleteButton();
+                } else {
+                    showToast('加载日志失败', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('加载日志失败:', error);
+                showToast('网络错误', 'error');
+            });
+        }
+
+        // 搜索日志
+        function searchLogs() {
+            currentPage = 1;
+            loadLogPage();
+        }
+
+        // 渲染日志表格
+        function renderLogTable(logs) {
+            const tbody = document.getElementById('logTableBody');
+            tbody.innerHTML = '';
+
+            if (!logs || logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 40px; color: #86868b;">暂无数据</td></tr>';
+                return;
+            }
+
+            logs.forEach(log => {
+                const tr = document.createElement('tr');
+                
+                // 复选框
+                tr.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="log-checkbox" value="${log.id}" onchange="updateSelectedIds()">
+                    </td>
+                `;
+                
+                // 操作账号
+                tr.innerHTML += `<td>${log.username || '-'}</td>`;
+                
+                // 操作人
+                tr.innerHTML += `<td>${log.nickName || '-'}</td>`;
+                
+                // 操作模块
+                tr.innerHTML += `<td>${log.operModule || '-'}</td>`;
+                
+                // 操作类型
+                const typeInfo = getOperTypeInfo(log.operType);
+                tr.innerHTML += `<td><span class="type-badge ${typeInfo.class}">${typeInfo.text}</span></td>`;
+                
+                // 操作描述
+                tr.innerHTML += `<td title="${log.operDesc || ''}">${log.operDesc || '-'}</td>`;
+                
+                // IP地址
+                tr.innerHTML += `<td>${log.operIp || '-'}</td>`;
+                
+                // 状态
+                const statusClass = log.status === 1 ? 'status-success' : 'status-fail';
+                const statusText = log.status === 1 ? '成功' : '失败';
+                tr.innerHTML += `<td><span class="status-badge ${statusClass}">${statusText}</span></td>`;
+                
+                // 耗时
+                tr.innerHTML += `<td>${log.costTime ? log.costTime + 'ms' : '-'}</td>`;
+                
+                // 操作
+                const actionCell = document.createElement('td');
+                
+                // 构建操作按钮（根据权限控制显示）
+                let actionButtons = '';
+                
+                // 删除按钮（需要 sys:log:remove 权限）
+                if (hasPermission('sys:log:remove')) {
+                    actionButtons += `
+                        <button class="action-btn btn-delete" onclick="deleteLog(${log.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    `;
+                }
+                
+                actionCell.innerHTML = actionButtons;
+                tr.appendChild(actionCell);
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 获取操作类型信息
+        function getOperTypeInfo(type) {
+            const types = {
+                1: { text: '新增', class: 'type-add' },
+                2: { text: '修改', class: 'type-edit' },
+                3: { text: '删除', class: 'type-delete' },
+                4: { text: '查询', class: 'type-query' },
+                5: { text: '导入', class: 'type-import' },
+                6: { text: '导出', class: 'type-export' }
+            };
+            return types[type] || { text: '未知', class: '' };
+        }
+
+        // 渲染分页组件
+        function renderPagination() {
+            const container = document.getElementById('paginationContainer');
+            
+            if (totalRecords === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'flex';
+            
+            document.getElementById('totalRecords').textContent = totalRecords;
+            document.getElementById('totalPages').textContent = totalPages;
+            document.getElementById('currentPageNum').textContent = currentPage;
+            document.getElementById('pageSizeSelect').value = pageSize;
+            
+            document.getElementById('btnFirstPage').disabled = currentPage === 1;
+            document.getElementById('btnPrevPage').disabled = currentPage === 1;
+            document.getElementById('btnNextPage').disabled = currentPage === totalPages;
+            document.getElementById('btnLastPage').disabled = currentPage === totalPages;
+        }
+
+        // 跳转到指定页
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) {
+                return;
+            }
+            currentPage = page;
+            loadLogPage();
+        }
+
+        // 改变每页显示条数
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSizeSelect').value);
+            currentPage = 1;
+            loadLogPage();
+        }
+
+        // 全选/取消全选
+        function toggleCheckAll() {
+            const checkAll = document.getElementById('checkAll');
+            const checkboxes = document.querySelectorAll('.log-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = checkAll.checked;
+            });
+            updateSelectedIds();
+        }
+
+        // 更新选中的ID
+        function updateSelectedIds() {
+            const checkboxes = document.querySelectorAll('.log-checkbox:checked');
+            selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+            updateBatchDeleteButton();
+        }
+
+        // 更新批量删除按钮
+        function updateBatchDeleteButton() {
+            const btn = document.getElementById('btnBatchDelete');
+            // 只有有权限且有选中项时才显示
+            if (selectedIds.length > 0 && hasPermission('sys:log:remove')) {
+                btn.style.display = 'flex';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        // 删除日志
+        function deleteLog(id) {
+            showConfirmDialog(
+                '删除确认',
+                '确定要删除这条日志吗？此操作不可恢复！',
+                function() {
+                    axios.delete(`/api/operlog/${id}`)
+                        .then(response => {
+                            if (response.data.code === 200) {
+                                showToast('删除成功', 'success');
+                                loadLogPage();
+                            } else {
+                                showToast(response.data.message || '删除失败', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('删除失败:', error);
+                            showToast('删除失败', 'error');
+                        });
+                }
+            );
+        }
+
+        // 批量删除
+        function batchDelete() {
+            if (selectedIds.length === 0) {
+                showToast('请选择要删除的日志', 'warning');
+                return;
+            }
+
+            showConfirmDialog(
+                '批量删除确认',
+                `确定要删除选中的 ${selectedIds.length} 条日志吗？此操作不可恢复！`,
+                function() {
+                    axios.delete('/api/operlog/batch', {
+                        params: { ids: selectedIds }
+                    })
+                    .then(response => {
+                        if (response.data.code === 200) {
+                            showToast('批量删除成功', 'success');
+                            loadLogPage();
+                        } else {
+                            showToast(response.data.message || '批量删除失败', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('批量删除失败:', error);
+                        showToast('批量删除失败', 'error');
+                    });
+                }
+            );
+        }
+
+        // 显示提示消息
+        function showToast(message, type = 'info') {
+            const colors = {
+                success: '#34C759',
+                error: '#FF3B30',
+                warning: '#FF9500',
+                info: '#007AFF'
+            };
+
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 24px;
+                right: 24px;
+                background: white;
+                padding: 16px 20px;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                z-index: 9999;
+                animation: slideInRight 0.3s ease;
+                border-left: 4px solid ${colors[type]};
+            `;
+
+            toast.innerHTML = `
+                <i class="fas ${icons[type]}" style="color: ${colors[type]}; font-size: 20px;"></i>
+                <span style="font-size: 15px; color: #1d1d1f; font-weight: 500;">${message}</span>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // 显示确认对话框
+        function showConfirmDialog(title, message, onConfirm) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 99999;
+                backdrop-filter: blur(4px);
+            `;
+
+            overlay.innerHTML = `
+                <div style="
+                    background: #ffffff;
+                    border-radius: 16px;
+                    padding: 24px;
+                    max-width: 400px;
+                    width: 90%;
+                    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+                ">
+                    <div style="text-align: center; margin-bottom: 16px;">
+                        <div style="
+                            width: 64px;
+                            height: 64px;
+                            background: linear-gradient(135deg, #FF9500 0%, #FF3B30 100%);
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin: 0 auto 16px;
+                            font-size: 32px;
+                            color: #ffffff;
+                        ">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div style="font-size: 20px; font-weight: 600; color: #1d1d1f; margin-bottom: 8px;">${title}</div>
+                    </div>
+                    <div style="font-size: 15px; color: #86868b; text-align: center; margin-bottom: 24px; line-height: 1.6;">${message}</div>
+                    <div style="display: flex; gap: 12px;">
+                        <button id="modalCancel" style="
+                            flex: 1;
+                            padding: 12px;
+                            border: none;
+                            border-radius: 10px;
+                            font-size: 15px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            background: #f5f5f7;
+                            color: #1d1d1f;
+                        ">取消</button>
+                        <button id="modalConfirm" style="
+                            flex: 1;
+                            padding: 12px;
+                            border: none;
+                            border-radius: 10px;
+                            font-size: 15px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            background: linear-gradient(135deg, #FF3B30 0%, #FF2D55 100%);
+                            color: #ffffff;
+                        ">确定</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+
+            document.getElementById('modalCancel').onclick = function() {
+                document.body.removeChild(overlay);
+            };
+
+            document.getElementById('modalConfirm').onclick = function() {
+                document.body.removeChild(overlay);
+                if (onConfirm) {
+                    onConfirm();
+                }
+            };
+
+            overlay.onclick = function(e) {
+                if (e.target === overlay) {
+                    document.body.removeChild(overlay);
+                }
+            };
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { opacity: 0; transform: translateX(100px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes slideOutRight {
+                from { opacity: 1; transform: translateX(0); }
+                to { opacity: 0; transform: translateX(100px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

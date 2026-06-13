@@ -1,0 +1,2263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 高校实训管理平台</title>
+    <!-- Bootstrap 5.3.0 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6.4.0 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .content-card {
+            background: #ffffff;
+            border-radius: 0;
+            padding: 32px;
+            box-shadow: none;
+            min-height: 100vh;
+        }
+
+        .card-header {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin: 0 0 4px 0;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: #86868b;
+            margin: 0;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-input, .search-select {
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .search-input {
+            min-width: 150px;
+        }
+
+        .search-select {
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        .search-input:focus, .search-select:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .btn-icon {
+            border: 1px solid #d1d1d6;
+            background: #ffffff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+            color: #007AFF;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-icon:hover {
+            background-color: #f5f5f7;
+            border-color: #007AFF;
+        }
+
+        .btn-icon-danger {
+            color: #FF3B30;
+        }
+
+        .btn-icon-danger:hover {
+            background-color: #ffe5e5;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table th {
+            font-weight: 600;
+            color: #1d1d1f;
+            font-size: 14px;
+            border-bottom: 2px solid #e5e5e7;
+            padding: 12px 16px;
+        }
+
+        .table td {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #1d1d1f;
+            vertical-align: middle;
+        }
+
+        .checkbox-cell {
+            width: 50px;
+        }
+
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-enabled {
+            background-color: #e6f7ed;
+            color: #00A862;
+        }
+
+        .status-disabled {
+            background-color: #ffe5e5;
+            color: #FF3B30;
+        }
+
+        .btn-action {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            margin-right: 4px;
+        }
+
+        .btn-edit {
+            color: #007AFF;
+        }
+
+        .btn-edit:hover {
+            background-color: #e8f0ff;
+        }
+
+        .btn-delete {
+            color: #FF3B30;
+        }
+
+        .btn-delete:hover {
+            background-color: #ffe5e5;
+        }
+
+        .btn-view {
+            color: #00A862;
+        }
+
+        .btn-view:hover {
+            background-color: #e8f8f0;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e5e7;
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: #86868b;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 8px;
+        }
+
+        .pagination button {
+            border: 1px solid #d1d1d6;
+            background: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            color: #1d1d1f;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background-color: #f5f5f7;
+            border-color: #007AFF;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination button.active {
+            background-color: #007AFF;
+            color: #ffffff;
+            border-color: #007AFF;
+        }
+
+        /* 模态框样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e5e7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin: 0;
+        }
+
+        .modal-close {
+            border: none;
+            background: none;
+            font-size: 24px;
+            color: #86868b;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e5e5e7;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: #FF3B30;
+            margin-left: 4px;
+        }
+
+        .form-control {
+            width: 100%;
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #007AFF;
+            border: 1px solid #007AFF;
+            padding: 10px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #e8f0ff;
+            border-color: #007AFF;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: #1d1d1f;
+            border: 1px solid #d1d1d6;
+            padding: 10px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f5f5f7;
+            border-color: #86868b;
+        }
+
+        /* 树形下拉框样式 */
+        .tree-select-wrapper {
+            position: relative;
+        }
+
+        .tree-select-input {
+            width: 100%;
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            background: #ffffff;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 42px;
+        }
+
+        .tree-select-input:hover {
+            border-color: #007AFF;
+        }
+
+        .tree-select-input:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .tree-select-arrow {
+            transition: transform 0.2s ease;
+            color: #86868b;
+            font-size: 12px;
+        }
+
+        .tree-select-arrow.open {
+            transform: rotate(180deg);
+        }
+
+        .tree-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border: 1px solid #d1d1d6;
+            border-radius: 12px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+            max-height: 350px;
+            overflow-y: auto;
+            z-index: 10000;
+            display: none;
+            padding: 8px;
+        }
+
+        .tree-dropdown.show {
+            display: block;
+            animation: slideDown 0.2s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 树形节点样式 */
+        .tree-node {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            margin: 2px 0;
+        }
+
+        .tree-node:hover {
+            background-color: #f5f5f7;
+        }
+
+        .tree-node.selected {
+            background-color: #e8f0ff;
+        }
+
+        .tree-node-checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #d1d1d6;
+            border-radius: 4px;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .tree-node-checkbox.checked {
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            border-color: #007AFF;
+        }
+
+        .tree-node-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .tree-node-checkbox.partial {
+            background: #007AFF;
+            border-color: #007AFF;
+        }
+
+        .tree-node-checkbox.partial::after {
+            content: '—';
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .tree-node-indent {
+            display: inline-block;
+            width: 20px;
+        }
+
+        .tree-node-toggle {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 4px;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .tree-node-toggle.expanded {
+            transform: rotate(90deg);
+        }
+
+        .tree-node-icon {
+            margin-right: 8px;
+            color: #007AFF;
+            font-size: 14px;
+        }
+
+        .tree-node-label {
+            flex: 1;
+            font-size: 14px;
+            color: #1d1d1f;
+        }
+
+        .tree-node-children {
+            margin-left: 20px;
+        }
+
+        /* 搜索框样式 */
+        .tree-search-box {
+            padding: 8px;
+            border-bottom: 1px solid #e5e5e7;
+            margin-bottom: 8px;
+        }
+
+        .tree-search-input {
+            width: 100%;
+            border: 1px solid #d1d1d6;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .tree-search-input:focus {
+            border-color: #007AFF;
+        }
+
+        /* 角色复选框组样式 */
+        .role-checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            background: #fafafa;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .role-checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background: #ffffff;
+            border: 1px solid #e5e5e7;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .role-checkbox-item:hover {
+            border-color: #007AFF;
+            background: #f8f9ff;
+        }
+
+        .role-checkbox-item.checked {
+            border-color: #007AFF;
+            background: #e8f0ff;
+        }
+
+        .role-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #d1d1d6;
+            border-radius: 4px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .role-checkbox.checked {
+            background: #007AFF;
+            border-color: #007AFF;
+        }
+
+        .role-checkbox.checked::after {
+            content: '✓';
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .role-checkbox-label {
+            flex: 1;
+            font-size: 14px;
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+
+        .role-checkbox-code {
+            font-size: 12px;
+            color: #86868b;
+            margin-left: 8px;
+        }
+
+        /* Toast提示 */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+        }
+
+        .toast {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid #00A862;
+        }
+
+        .toast.error {
+            border-left: 4px solid #FF3B30;
+        }
+
+        .toast.warning {
+            border-left: 4px solid #FF9500;
+        }
+
+        .toast-icon {
+            font-size: 20px;
+        }
+
+        .toast.success .toast-icon {
+            color: #00A862;
+        }
+
+        .toast.error .toast-icon {
+            color: #FF3B30;
+        }
+
+        .toast.warning .toast-icon {
+            color: #FF9500;
+        }
+
+        .toast-message {
+            flex: 1;
+            font-size: 14px;
+            color: #1d1d1f;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-users" style="color: #007AFF; margin-right: 10px;"></i>
+                用户管理
+            </h3>
+            <p class="card-subtitle">管理系统用户信息和权限</p>
+        </div>
+
+        <!-- 工具栏 -->
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <input type="text" class="search-input" id="searchUsername" placeholder="请输入用户名">
+                <button class="btn-icon" onclick="searchUsers()">
+                    <i class="fas fa-search"></i>
+                    搜索
+                </button>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn-icon" id="addUserBtn" onclick="showAddModal()" style="display: none;">
+                    <i class="fas fa-plus"></i>
+                    新增用户
+                </button>
+                <button class="btn-icon btn-icon-danger" id="batchDeleteBtn" onclick="showBatchDeleteModal()" style="display: none;">
+                    <i class="fas fa-trash"></i>
+                    批量删除
+                </button>
+            </div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="checkbox-cell">
+                            <input type="checkbox" class="form-check-input" id="selectAll" onchange="toggleSelectAll()">
+                        </th>
+                        <th>用户名</th>
+                        <th>昵称</th>
+                        <th>所属部门</th>
+                        <th>邮箱</th>
+                        <th>手机号</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination-container">
+            <div class="pagination-info">
+                共 <span id="totalRecords">0</span> 条记录，第 <span id="currentPage">1</span> / <span id="totalPages">1</span> 页
+            </div>
+            <div class="pagination" id="pagination">
+                <!-- 分页按钮将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/编辑用户模态框 -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalTitle">新增用户</h4>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <input type="hidden" id="userId">
+                    <!-- 两行两列布局 -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">用户名<span class="required">*</span></label>
+                            <input type="text" class="form-control" id="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">密码<span class="required">*</span></label>
+                            <input type="password" class="form-control" id="password">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">昵称<span class="required">*</span></label>
+                            <input type="text" class="form-control" id="nickName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">状态</label>
+                            <select class="form-control" id="status">
+                                <option value="1">启用</option>
+                                <option value="0">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">所属部门<span class="required">*</span></label>
+                        <div class="tree-select-wrapper">
+                            <div class="tree-select-input" id="deptTreeInput" onclick="toggleDeptTree()">
+                                <span id="deptTreeText" style="color: #86868b;">请选择部门</span>
+                                <i class="fas fa-chevron-down tree-select-arrow" id="deptTreeArrow"></i>
+                            </div>
+                            <div class="tree-dropdown" id="deptTreeDropdown">
+                                <div class="tree-search-box">
+                                    <input type="text" class="tree-search-input" id="treeSearchInput" 
+                                           placeholder="搜索部门..." oninput="searchDeptTree()">
+                                </div>
+                                <div id="deptTreeContainer">
+                                    <!-- 树形节点将通过JavaScript动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="deptId">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">分配角色</label>
+                        <div class="tree-select-wrapper">
+                            <div class="tree-select-input" id="roleSelectInput" onclick="toggleRoleTree()">
+                                <span id="roleSelectText" style="color: #86868b;">请选择角色</span>
+                                <i class="fas fa-chevron-down tree-select-arrow" id="roleSelectArrow"></i>
+                            </div>
+                            <div class="tree-dropdown" id="roleTreeDropdown">
+                                <div id="roleTreeContainer">
+                                    <!-- 角色复选框将通过JavaScript动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="roleIds">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">邮箱</label>
+                            <input type="email" class="form-control" id="email">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">手机号</label>
+                            <input type="tel" class="form-control" id="phone">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn-primary" onclick="submitForm()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看用户角色模态框 -->
+    <div class="modal-overlay" id="viewRoleModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h4 class="modal-title">用户角色信息</h4>
+                <button class="modal-close" onclick="closeRoleModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f7; border-radius: 8px;">
+                    <div style="font-size: 14px; color: #86868b; margin-bottom: 4px;">用户名</div>
+                    <div style="font-size: 16px; font-weight: 600; color: #1d1d1f;" id="viewUsername">-</div>
+                </div>
+                <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f7; border-radius: 8px;">
+                    <div style="font-size: 14px; color: #86868b; margin-bottom: 4px;">昵称</div>
+                    <div style="font-size: 16px; font-weight: 600; color: #1d1d1f;" id="viewNickName">-</div>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div style="font-size: 14px; font-weight: 600; color: #1d1d1f;">
+                            <i class="fas fa-user-shield" style="color: #007AFF; margin-right: 8px;"></i>
+                            已分配角色
+                        </div>
+                        <button class="btn-icon btn-icon-danger" id="batchDeleteRoleBtn" onclick="batchDeleteRoles()" style="display: none; padding: 6px 12px; font-size: 12px;">
+                            <i class="fas fa-trash"></i>
+                            批量删除
+                        </button>
+                    </div>
+                    <div id="roleListContainer" style="display: grid; gap: 8px; max-height: 300px; overflow-y: auto;">
+                        <!-- 角色列表动态生成 -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeRoleModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        let userList = [];
+        let deptTreeData = [];
+        let roleList = [];
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalPages = 0;
+        let totalRecords = 0;
+        let selectedIds = [];
+        let userPermissions = []; // 当前用户的权限标识列表
+
+        // 页面加载时执行
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserPermissions(); // 先加载用户权限
+        });
+
+        // 加载当前用户的权限
+        function loadUserPermissions() {
+            axios.get('/api/auth/userinfo')
+                .then(response => {
+                    console.log('=== 用户信息响应 ===', response.data);
+                    if (response.data.code === 200) {
+                        userPermissions = response.data.data.permissions || [];
+                        console.log('=== 当前用户权限列表 ===', userPermissions);
+                        console.log('=== 权限数量 ===', userPermissions.length);
+                        console.log('=== 是否有 system:manage ===', userPermissions.includes('system:manage'));
+                        console.log('=== 是否有 sys:user:add ===', userPermissions.includes('sys:user:add'));
+                        console.log('=== 是否有 sys:user:edit ===', userPermissions.includes('sys:user:edit'));
+                        console.log('=== 是否有 sys:user:remove ===', userPermissions.includes('sys:user:remove'));
+                        
+                        // 控制工具栏按钮显示
+                        updateToolbarButtons();
+                        
+                        // 加载完权限后再加载其他数据
+                        loadDeptTree();
+                        loadRoleList();
+                        loadUserPage();
+                    } else {
+                        console.error('获取用户信息失败:', response.data.message);
+                        userPermissions = [];
+                        updateToolbarButtons();
+                        loadDeptTree();
+                        loadRoleList();
+                        loadUserPage();
+                    }
+                })
+                .catch(error => {
+                    console.error('加载用户权限失败:', error);
+                    // 如果加载失败，默认给所有权限（开发环境）
+                    userPermissions = [];
+                    updateToolbarButtons();
+                    loadDeptTree();
+                    loadRoleList();
+                    loadUserPage();
+                });
+        }
+
+        // 更新工具栏按钮显示状态
+        function updateToolbarButtons() {
+            // 新增用户按钮（需要 sys:user:add 权限）
+            const addUserBtn = document.getElementById('addUserBtn');
+            if (hasPermission('sys:user:add')) {
+                addUserBtn.style.display = 'flex';
+            } else {
+                addUserBtn.style.display = 'none';
+            }
+            
+            // 批量删除按钮默认隐藏，有选中项且有权限时才显示
+            const batchDeleteBtn = document.getElementById('batchDeleteBtn');
+            batchDeleteBtn.style.display = 'none';
+        }
+
+        // 检查是否有某个权限
+        function hasPermission(permKey) {
+            // 超级管理员判断：必须同时满足两个条件
+            // 1. 有 system:manage 权限
+            // 2. 有所有按钮权限（至少要有增删改权限）
+            const isSuperAdmin = userPermissions.includes('system:manage') && 
+                                 userPermissions.includes('sys:user:add') &&
+                                 userPermissions.includes('sys:user:edit') &&
+                                 userPermissions.includes('sys:user:remove');
+            
+            console.log(`=== 权限检查: ${permKey} ===`);
+            console.log('  - 是否为超级管理员:', isSuperAdmin);
+            console.log('  - 是否有该权限:', userPermissions.includes(permKey));
+            console.log('  - 检查结果:', isSuperAdmin || userPermissions.includes(permKey));
+            
+            if (isSuperAdmin) {
+                return true;
+            }
+            
+            // 普通用户：检查是否有具体权限
+            return userPermissions.includes(permKey);
+        }
+
+        // 加载角色列表
+        function loadRoleList() {
+            axios.get('/api/role/list')
+                .then(response => {
+                    if (response.data.code === 200) {
+                        roleList = response.data.data || [];
+                        renderRoleCheckboxes();
+                    }
+                })
+                .catch(error => {
+                    console.error('加载角色列表失败:', error);
+                });
+        }
+
+        // 渲染角色复选框
+        function renderRoleCheckboxes() {
+            const container = document.getElementById('roleTreeContainer');
+            container.innerHTML = '';
+            
+            roleList.forEach(role => {
+                const item = document.createElement('div');
+                item.className = 'tree-node';
+                item.dataset.roleId = role.id;
+                item.dataset.roleName = role.roleName;
+                
+                // 复选框
+                const checkbox = document.createElement('div');
+                checkbox.className = 'tree-node-checkbox';
+                checkbox.onclick = function(e) {
+                    e.stopPropagation();
+                    toggleRoleCheckbox(role.id, checkbox, item);
+                };
+                item.appendChild(checkbox);
+                
+                // 角色图标和名称
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-user-shield tree-node-icon';
+                item.appendChild(icon);
+                
+                const label = document.createElement('span');
+                label.className = 'tree-node-label';
+                label.textContent = role.roleName;
+                item.appendChild(label);
+                
+                // 点击节点切换复选框
+                item.onclick = function(e) {
+                    if (e.target.classList.contains('tree-node-checkbox')) {
+                        return;
+                    }
+                    toggleRoleCheckbox(role.id, checkbox, item);
+                };
+                
+                container.appendChild(item);
+            });
+        }
+
+        // 切换角色复选框
+        function toggleRoleCheckbox(roleId, checkbox, node) {
+            checkbox.classList.toggle('checked');
+            node.classList.toggle('selected');
+            
+            // 收集所有选中的角色
+            const selectedRoles = [];
+            const selectedRoleIds = [];
+            document.querySelectorAll('#roleTreeContainer .tree-node.selected').forEach(item => {
+                selectedRoleIds.push(parseInt(item.dataset.roleId));
+                selectedRoles.push(item.dataset.roleName);
+            });
+            
+            // 更新隐藏字段和显示文本
+            document.getElementById('roleIds').value = selectedRoleIds.join(',');
+            
+            if (selectedRoles.length > 0) {
+                document.getElementById('roleSelectText').textContent = selectedRoles.join(', ');
+                document.getElementById('roleSelectText').style.color = '#1d1d1f';
+            } else {
+                document.getElementById('roleSelectText').textContent = '请选择角色';
+                document.getElementById('roleSelectText').style.color = '#86868b';
+            }
+        }
+
+        // 切换角色下拉框
+        function toggleRoleTree() {
+            const dropdown = document.getElementById('roleTreeDropdown');
+            const arrow = document.getElementById('roleSelectArrow');
+            dropdown.classList.toggle('show');
+            arrow.classList.toggle('open');
+            
+            // 关闭部门下拉框
+            document.getElementById('deptTreeDropdown').classList.remove('show');
+            document.getElementById('deptTreeArrow').classList.remove('open');
+        }
+
+        // 加载部门树
+        function loadDeptTree() {
+            axios.get('/api/dept/tree')
+                .then(response => {
+                    if (response.data.code === 200) {
+                        deptTreeData = response.data.data || [];
+                        renderDeptTree(deptTreeData);
+                    }
+                })
+                .catch(error => {
+                    console.error('加载部门树失败:', error);
+                });
+        }
+
+        // 渲染树形下拉框
+        function renderDeptTree(depts) {
+            const container = document.getElementById('deptTreeContainer');
+            container.innerHTML = '';
+            buildTreeNodes(depts, container, 0);
+        }
+
+        // 构建树形节点
+        function buildTreeNodes(depts, container, level) {
+            depts.forEach(dept => {
+                const hasChildren = dept.children && dept.children.length > 0;
+                
+                // 创建节点
+                const node = document.createElement('div');
+                node.className = 'tree-node';
+                node.dataset.id = dept.id;
+                node.dataset.name = dept.deptName;
+                node.dataset.level = level;
+                
+                // 复选框
+                const checkbox = document.createElement('div');
+                checkbox.className = 'tree-node-checkbox';
+                checkbox.onclick = function(e) {
+                    e.stopPropagation();
+                    toggleCheckbox(dept.id, checkbox, node);
+                };
+                node.appendChild(checkbox);
+                
+                // 构建HTML
+                let html = '';
+                
+                // 缩进
+                for (let i = 0; i < level; i++) {
+                    html += '<span class="tree-node-indent"></span>';
+                }
+                
+                // 展开/折叠图标
+                if (hasChildren) {
+                    html += `<span class="tree-node-toggle" onclick="toggleTreeNode(event, this)">
+                        <i class="fas fa-chevron-right"></i>
+                    </span>`;
+                } else {
+                    html += '<span style="display: inline-block; width: 24px;"></span>';
+                }
+                
+                // 部门图标
+                html += '<i class="fas fa-building tree-node-icon"></i>';
+                
+                // 部门名称
+                html += `<span class="tree-node-label">${dept.deptName}</span>`;
+                
+                node.insertAdjacentHTML('beforeend', html);
+                
+                // 点击节点切换复选框
+                node.onclick = function(e) {
+                    if (e.target.classList.contains('tree-node-toggle') || 
+                        e.target.closest('.tree-node-toggle')) {
+                        return;
+                    }
+                    toggleCheckbox(dept.id, checkbox, node);
+                };
+                
+                container.appendChild(node);
+                
+                // 子节点容器
+                if (hasChildren) {
+                    const childrenContainer = document.createElement('div');
+                    childrenContainer.className = 'tree-node-children';
+                    childrenContainer.style.display = 'none';
+                    childrenContainer.dataset.parentId = dept.id;
+                    buildTreeNodes(dept.children, childrenContainer, level + 1);
+                    container.appendChild(childrenContainer);
+                }
+            });
+        }
+
+        // 切换复选框
+        function toggleCheckbox(deptId, checkbox, node) {
+            // 清除所有选中
+            document.querySelectorAll('.tree-node-checkbox').forEach(cb => {
+                cb.classList.remove('checked', 'partial');
+            });
+            document.querySelectorAll('.tree-node').forEach(n => {
+                n.classList.remove('selected');
+            });
+            
+            // 选中当前节点
+            checkbox.classList.add('checked');
+            node.classList.add('selected');
+            
+            // 设置部门ID
+            document.getElementById('deptId').value = deptId;
+            document.getElementById('deptTreeText').textContent = node.dataset.name;
+            document.getElementById('deptTreeText').style.color = '#1d1d1f';
+        }
+
+        // 更新父节点复选框状态
+        function updateParentCheckbox(node) {
+            const parentContainer = node.closest('.tree-node-children');
+            if (!parentContainer) return;
+            
+            const parentId = parentContainer.dataset.parentId;
+            const parentCheckbox = document.querySelector(`.tree-node[data-id="${parentId}"] .tree-node-checkbox`);
+            if (!parentCheckbox) return;
+            
+            const allSiblings = parentContainer.querySelectorAll('.tree-node-checkbox');
+            const checkedSiblings = parentContainer.querySelectorAll('.tree-node-checkbox.checked');
+            
+            if (checkedSiblings.length === 0) {
+                parentCheckbox.classList.remove('checked', 'partial');
+            } else if (checkedSiblings.length === allSiblings.length) {
+                parentCheckbox.classList.add('checked');
+                parentCheckbox.classList.remove('partial');
+            } else {
+                parentCheckbox.classList.add('partial');
+                parentCheckbox.classList.remove('checked');
+            }
+            
+            const parentNode = document.querySelector(`.tree-node[data-id="${parentId}"]`);
+            if (parentNode) {
+                updateParentCheckbox(parentNode);
+            }
+        }
+
+        // 搜索部门树
+        function searchDeptTree() {
+            const searchText = document.getElementById('treeSearchInput').value.trim().toLowerCase();
+            const allNodes = document.querySelectorAll('.tree-node');
+            
+            if (!searchText) {
+                allNodes.forEach(node => {
+                    node.style.display = 'flex';
+                });
+                return;
+            }
+            
+            allNodes.forEach(node => {
+                const name = node.dataset.name.toLowerCase();
+                if (name.includes(searchText)) {
+                    node.style.display = 'flex';
+                    let parent = node.parentElement;
+                    while (parent) {
+                        if (parent.classList.contains('tree-node-children')) {
+                            parent.style.display = 'block';
+                        }
+                        parent = parent.parentElement;
+                    }
+                } else {
+                    node.style.display = 'none';
+                }
+            });
+        }
+
+        // 切换节点展开/折叠
+        function toggleTreeNode(event, toggle) {
+            event.stopPropagation();
+            const node = toggle.closest('.tree-node');
+            const nextElement = node.nextElementSibling;
+            
+            if (nextElement && nextElement.classList.contains('tree-node-children')) {
+                const isExpanded = nextElement.style.display === 'block';
+                nextElement.style.display = isExpanded ? 'none' : 'block';
+                toggle.classList.toggle('expanded');
+            }
+        }
+
+        // 切换部门树显示/隐藏
+        function toggleDeptTree() {
+            const dropdown = document.getElementById('deptTreeDropdown');
+            const arrow = document.getElementById('deptTreeArrow');
+            
+            dropdown.classList.toggle('show');
+            arrow.classList.toggle('open');
+            
+            if (dropdown.classList.contains('show')) {
+                setTimeout(() => {
+                    document.getElementById('treeSearchInput').focus();
+                }, 100);
+            }
+        }
+
+        // 关闭部门树下拉框
+        document.addEventListener('click', function(e) {
+            const deptWrapper = document.querySelector('#deptTreeInput')?.closest('.tree-select-wrapper');
+            const roleWrapper = document.querySelector('#roleSelectInput')?.closest('.tree-select-wrapper');
+            
+            // 关闭部门下拉框
+            if (deptWrapper && !deptWrapper.contains(e.target)) {
+                document.getElementById('deptTreeDropdown').classList.remove('show');
+                document.getElementById('deptTreeArrow').classList.remove('open');
+            }
+            
+            // 关闭角色下拉框
+            if (roleWrapper && !roleWrapper.contains(e.target)) {
+                document.getElementById('roleTreeDropdown').classList.remove('show');
+                document.getElementById('roleSelectArrow').classList.remove('open');
+            }
+        });
+
+        // 根据部门ID获取部门名称
+        function getDeptName(deptId) {
+            if (!deptId) return '-';
+            
+            const findDept = (depts, id) => {
+                for (const dept of depts) {
+                    if (dept.id === id) {
+                        return dept.deptName;
+                    }
+                    if (dept.children && dept.children.length > 0) {
+                        const found = findDept(dept.children, id);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            };
+            
+            return findDept(deptTreeData, deptId) || '-';
+        }
+
+        // 加载用户分页数据
+        function loadUserPage() {
+            const username = document.getElementById('searchUsername').value.trim();
+
+            axios.get('/api/user/page', {
+                params: {
+                    pageNum: currentPage,
+                    pageSize: pageSize,
+                    username: username
+                }
+            })
+            .then(response => {
+                if (response.data.code === 200) {
+                    const pageData = response.data.data;
+                    userList = pageData.list || [];
+                    totalPages = pageData.pages || 0;
+                    totalRecords = pageData.total || 0;
+                    
+                    renderUserTable(userList);
+                    renderPagination();
+                    selectedIds = [];
+                    updateBatchDeleteButton();
+                } else {
+                    showToast('加载用户列表失败', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('加载用户列表失败:', error);
+                showToast('网络错误', 'error');
+            });
+        }
+
+        // 搜索用户
+        function searchUsers() {
+            currentPage = 1;
+            loadUserPage();
+        }
+
+        // 重置搜索
+        function resetSearch() {
+            document.getElementById('searchUsername').value = '';
+            searchUsers();
+        }
+
+        // 渲染用户表格
+        function renderUserTable(users) {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';
+
+            if (!users || users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: #86868b;">暂无数据</td></tr>';
+                return;
+            }
+
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                
+                // 构建操作按钮（根据权限控制显示）
+                let actionButtons = '';
+                
+                // 查看角色按钮（所有人都可以看到）
+                actionButtons += `
+                    <button class="btn-action btn-view" onclick="window.viewUserRoles(${user.id})">
+                        <i class="fas fa-eye"></i> 查看角色
+                    </button>
+                `;
+                
+                // 编辑按钮（需要 sys:user:edit 权限）
+                if (hasPermission('sys:user:edit')) {
+                    actionButtons += `
+                        <button class="btn-action btn-edit" onclick="window.showEditModal(${user.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                    `;
+                }
+                
+                // 删除按钮（需要 sys:user:remove 权限，且不能删除admin用户和超级管理员）
+                if (hasPermission('sys:user:remove')) {
+                    // 检查是否是admin用户或超级管理员
+                    const isSuperAdmin = user.username === 'admin' || 
+                        user.id === 2 || 
+                        (user.roleIds && user.roleIds.includes(2));
+                    
+                    if (!isSuperAdmin) {
+                        actionButtons += `
+                            <button class="btn-action btn-delete" onclick="window.deleteUser(${user.id})">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        `;
+                    }
+                }
+                
+                tr.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="form-check-input" value="${user.id}" onchange="updateSelectedIds()">
+                    </td>
+                    <td>${user.username}</td>
+                    <td>${user.nickName || '-'}</td>
+                    <td>${getDeptName(user.deptId)}</td>
+                    <td>${user.email || '-'}</td>
+                    <td>${user.phone || '-'}</td>
+                    <td>
+                        <span class="status-badge ${user.status === 1 ? 'status-enabled' : 'status-disabled'}">
+                            ${user.status === 1 ? '启用' : '禁用'}
+                        </span>
+                    </td>
+                    <td>${user.createTime}</td>
+                    <td>
+                        ${actionButtons}
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 渲染分页
+        function renderPagination() {
+            document.getElementById('totalRecords').textContent = totalRecords;
+            document.getElementById('currentPage').textContent = currentPage;
+            document.getElementById('totalPages').textContent = totalPages;
+
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            // 上一页
+            const prevBtn = document.createElement('button');
+            prevBtn.textContent = '上一页';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => goToPage(currentPage - 1);
+            pagination.appendChild(prevBtn);
+
+            // 页码
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.textContent = i;
+                    if (i === currentPage) {
+                        pageBtn.className = 'active';
+                    }
+                    pageBtn.onclick = () => goToPage(i);
+                    pagination.appendChild(pageBtn);
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.style.padding = '0 8px';
+                    ellipsis.style.color = '#86868b';
+                    pagination.appendChild(ellipsis);
+                }
+            }
+
+            // 下一页
+            const nextBtn = document.createElement('button');
+            nextBtn.textContent = '下一页';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => goToPage(currentPage + 1);
+            pagination.appendChild(nextBtn);
+        }
+
+        // 跳转到指定页
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            loadUserPage();
+        }
+
+        // 全选/取消全选
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll').checked;
+            const checkboxes = document.querySelectorAll('#userTableBody .form-check-input');
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll;
+            });
+            updateSelectedIds();
+        }
+
+        // 更新选中的ID
+        function updateSelectedIds() {
+            const checkboxes = document.querySelectorAll('#userTableBody .form-check-input:checked');
+            selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+            updateBatchDeleteButton();
+            
+            // 更新全选框状态
+            const allCheckboxes = document.querySelectorAll('#userTableBody .form-check-input');
+            const selectAll = document.getElementById('selectAll');
+            if (allCheckboxes.length > 0) {
+                selectAll.checked = selectedIds.length === allCheckboxes.length;
+            }
+        }
+
+        // 更新批量删除按钮状态
+        function updateBatchDeleteButton() {
+            const batchDeleteBtn = document.getElementById('batchDeleteBtn');
+            
+            // 过滤掉admin用户和超级管理员
+            const deletableIds = selectedIds.filter(id => {
+                const user = userList.find(u => u.id === id);
+                return user && user.username !== 'admin' && id !== 2;
+            });
+            
+            // 只有有权限且有可删除的选中项时才显示
+            if (deletableIds.length > 0 && hasPermission('sys:user:remove')) {
+                batchDeleteBtn.style.display = 'flex';
+            } else {
+                batchDeleteBtn.style.display = 'none';
+            }
+        }
+
+        // 显示新增模态框
+        function showAddModal() {
+            document.getElementById('modalTitle').textContent = '新增用户';
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            document.getElementById('password').required = true;
+            document.getElementById('deptId').value = '';
+            document.getElementById('deptTreeText').textContent = '请选择部门';
+            document.getElementById('deptTreeText').style.color = '#86868b';
+            document.getElementById('roleIds').value = '';
+            document.getElementById('roleSelectText').textContent = '请选择角色';
+            document.getElementById('roleSelectText').style.color = '#86868b';
+            
+            // 清空所有复选框
+            document.querySelectorAll('.tree-node-checkbox').forEach(cb => {
+                cb.classList.remove('checked', 'partial');
+            });
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('selected');
+            });
+            
+            // 清除验证错误
+            clearValidationErrors();
+            
+            document.getElementById('userModal').classList.add('show');
+            
+            // 添加输入框焦点事件
+            addInputFocusEvents();
+        }
+
+        // 显示编辑模态框
+        function showEditModal(id) {
+            // 先从列表查找
+            let user = userList.find(u => u.id === id);
+            
+            // 如果列表中没有角色数据，重新查询
+            if (!user || !user.roleIds) {
+                axios.get(`/api/user/${id}`)
+                    .then(response => {
+                        if (response.data.code === 200) {
+                            user = response.data.data;
+                            fillEditForm(user);
+                        } else {
+                            showToast('查询用户失败', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('查询用户失败:', error);
+                        showToast('网络错误', 'error');
+                    });
+            } else {
+                fillEditForm(user);
+            }
+        }
+
+        // 填充编辑表单
+        function fillEditForm(user) {
+            document.getElementById('modalTitle').textContent = '编辑用户';
+            document.getElementById('userId').value = user.id;
+            document.getElementById('username').value = user.username;
+            document.getElementById('password').value = '';
+            document.getElementById('password').required = false;
+            document.getElementById('nickName').value = user.nickName;
+            
+            // 设置部门
+            if (user.deptId) {
+                document.getElementById('deptId').value = user.deptId;
+                const deptName = getDeptName(user.deptId);
+                document.getElementById('deptTreeText').textContent = deptName;
+                document.getElementById('deptTreeText').style.color = '#1d1d1f';
+                
+                // 清空所有复选框
+                document.querySelectorAll('.tree-node-checkbox').forEach(cb => {
+                    cb.classList.remove('checked', 'partial');
+                });
+                document.querySelectorAll('.tree-node').forEach(node => {
+                    node.classList.remove('selected');
+                });
+                
+                // 选中当前部门
+                const targetNode = document.querySelector(`.tree-node[data-id="${user.deptId}"]`);
+                if (targetNode) {
+                    const checkbox = targetNode.querySelector('.tree-node-checkbox');
+                    if (checkbox) {
+                        checkbox.classList.add('checked');
+                        targetNode.classList.add('selected');
+                    }
+                }
+            } else {
+                document.getElementById('deptId').value = '';
+                document.getElementById('deptTreeText').textContent = '请选择部门';
+                document.getElementById('deptTreeText').style.color = '#86868b';
+                
+                document.querySelectorAll('.tree-node-checkbox').forEach(cb => {
+                    cb.classList.remove('checked', 'partial');
+                });
+                document.querySelectorAll('.tree-node').forEach(node => {
+                    node.classList.remove('selected');
+                });
+            }
+            
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('phone').value = user.phone || '';
+            document.getElementById('status').value = user.status;
+
+            // 回显角色
+            document.querySelectorAll('#roleTreeContainer .tree-node').forEach(node => {
+                node.classList.remove('selected');
+                node.querySelector('.tree-node-checkbox').classList.remove('checked');
+            });
+            
+            if (user.roleIds && user.roleIds.length > 0) {
+                user.roleIds.forEach(roleId => {
+                    const node = document.querySelector(`#roleTreeContainer .tree-node[data-role-id="${roleId}"]`);
+                    if (node) {
+                        node.classList.add('selected');
+                        node.querySelector('.tree-node-checkbox').classList.add('checked');
+                    }
+                });
+                
+                // 更新显示文本
+                const selectedRoles = [];
+                user.roleIds.forEach(roleId => {
+                    const node = document.querySelector(`#roleTreeContainer .tree-node[data-role-id="${roleId}"]`);
+                    if (node) {
+                        selectedRoles.push(node.dataset.roleName);
+                    }
+                });
+                document.getElementById('roleSelectText').textContent = selectedRoles.join(', ');
+                document.getElementById('roleSelectText').style.color = '#1d1d1f';
+                document.getElementById('roleIds').value = user.roleIds.join(',');
+            } else {
+                document.getElementById('roleSelectText').textContent = '请选择角色';
+                document.getElementById('roleSelectText').style.color = '#86868b';
+                document.getElementById('roleIds').value = '';
+            }
+
+            // 清除验证错误
+            clearValidationErrors();
+            
+            document.getElementById('userModal').classList.add('show');
+            
+            // 添加输入框焦点事件
+            addInputFocusEvents();
+        }
+
+        // 添加输入框焦点事件
+        function addInputFocusEvents() {
+            document.querySelectorAll('#userForm .form-control').forEach(field => {
+                field.onfocus = function() {
+                    this.style.borderColor = '#007AFF';
+                    // 移除错误提示
+                    const formGroup = this.closest('.form-group');
+                    if (formGroup) {
+                        const errorMsg = formGroup.querySelector('.error-message');
+                        if (errorMsg) {
+                            errorMsg.remove();
+                        }
+                    }
+                };
+                field.onblur = function() {
+                    this.style.borderColor = '#d1d1d6';
+                };
+            });
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('userModal').classList.remove('show');
+        }
+
+        // 查看用户角色
+        function viewUserRoles(userId) {
+            currentViewUserId = userId;
+            // 查询用户详情
+            axios.get(`/api/user/${userId}`)
+                .then(response => {
+                    if (response.data.code === 200) {
+                        const user = response.data.data;
+                        
+                        // 显示用户信息
+                        document.getElementById('viewUsername').textContent = user.username || '-';
+                        document.getElementById('viewNickName').textContent = user.nickName || '-';
+                        
+                        // 渲染角色列表
+                        renderRoleList(user.roleIds || []);
+                        
+                        // 打开模态框
+                        document.getElementById('viewRoleModal').classList.add('show');
+                    } else {
+                        showToast('查询用户角色失败', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('查询用户角色失败:', error);
+                    showToast('网络错误', 'error');
+                });
+        }
+
+        // 当前查看角色的用户ID
+        let currentViewUserId = null;
+        let selectedRoleIds = [];
+
+        // 渲染角色列表
+        function renderRoleList(roleIds) {
+            const container = document.getElementById('roleListContainer');
+            container.innerHTML = '';
+            selectedRoleIds = [];
+            updateBatchDeleteRoleButton();
+            
+            if (roleIds.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #86868b;"><i class="fas fa-info-circle" style="margin-right: 8px;"></i>该用户暂未分配角色</div>';
+                return;
+            }
+            
+            // 根据roleIds过滤角色列表
+            const userRoles = roleList.filter(role => roleIds.includes(role.id));
+            
+            userRoles.forEach(role => {
+                const roleTag = document.createElement('div');
+                roleTag.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    padding: 12px;
+                    background: #ffffff;
+                    border: 1px solid #e5e5e7;
+                    border-radius: 8px;
+                    transition: all 0.2s ease;
+                    cursor: pointer;
+                `;
+                roleTag.dataset.roleId = role.id;
+                
+                roleTag.innerHTML = `
+                    <div class="role-checkbox" style="
+                        width: 18px;
+                        height: 18px;
+                        border: 2px solid #d1d1d6;
+                        border-radius: 4px;
+                        margin-right: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: all 0.2s ease;
+                        flex-shrink: 0;
+                    ">
+                    </div>
+                    <div style="
+                        width: 36px;
+                        height: 36px;
+                        background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+                        border-radius: 8px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin-right: 12px;
+                        color: #ffffff;
+                        font-size: 16px;
+                    ">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 15px; font-weight: 600; color: #1d1d1f; margin-bottom: 2px;">${role.roleName}</div>
+                        <div style="font-size: 12px; color: #86868b;">${role.roleCode}</div>
+                    </div>
+                    <div style="
+                        padding: 4px 12px;
+                        background: #e8f5e9;
+                        color: #34C759;
+                        border-radius: 12px;
+                        font-size: 12px;
+                        font-weight: 500;
+                    ">
+                        ${role.status === 1 ? '启用' : '禁用'}
+                    </div>
+                `;
+                
+                // 点击切换选中状态
+                roleTag.onclick = function(e) {
+                    e.stopPropagation();
+                    toggleRoleSelection(role.id, roleTag);
+                };
+                
+                container.appendChild(roleTag);
+            });
+        }
+
+        // 切换角色选中状态
+        function toggleRoleSelection(roleId, element) {
+            const checkbox = element.querySelector('.role-checkbox');
+            
+            if (selectedRoleIds.includes(roleId)) {
+                // 取消选中
+                selectedRoleIds = selectedRoleIds.filter(id => id !== roleId);
+                checkbox.style.background = 'transparent';
+                checkbox.style.borderColor = '#d1d1d6';
+                checkbox.innerHTML = '';
+                element.style.background = '#ffffff';
+                element.style.borderColor = '#e5e5e7';
+            } else {
+                // 选中
+                selectedRoleIds.push(roleId);
+                checkbox.style.background = '#007AFF';
+                checkbox.style.borderColor = '#007AFF';
+                checkbox.innerHTML = '<span style="color: white; font-size: 11px; font-weight: bold;">✓</span>';
+                element.style.background = '#e8f0ff';
+                element.style.borderColor = '#007AFF';
+            }
+            
+            updateBatchDeleteRoleButton();
+        }
+
+        // 更新批量删除按钮状态
+        function updateBatchDeleteRoleButton() {
+            const batchDeleteRoleBtn = document.getElementById('batchDeleteRoleBtn');
+            if (selectedRoleIds.length > 0) {
+                batchDeleteRoleBtn.style.display = 'flex';
+            } else {
+                batchDeleteRoleBtn.style.display = 'none';
+            }
+        }
+
+        // 批量删除角色
+        function batchDeleteRoles() {
+            if (selectedRoleIds.length === 0) {
+                showToast('请选择要删除的角色', 'warning');
+                return;
+            }
+
+            showConfirmDialog(
+                '批量删除确认',
+                `确定要删除选中的 ${selectedRoleIds.length} 个角色吗？`,
+                function() {
+                    axios.delete(`/api/user/${currentViewUserId}/roles`, {
+                        data: selectedRoleIds
+                    })
+                    .then(response => {
+                        if (response.data.code === 200) {
+                            showToast('批量删除成功', 'success');
+                            // 重新加载用户详情
+                            viewUserRoles(currentViewUserId);
+                        } else {
+                            showToast(response.data.msg || '批量删除失败', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('批量删除失败:', error);
+                        showToast('批量删除失败', 'error');
+                    });
+                }
+            );
+        }
+
+        // 关闭角色模态框
+        function closeRoleModal() {
+            document.getElementById('viewRoleModal').classList.remove('show');
+        }
+
+        // 提交表单
+        function submitForm() {
+            const userId = document.getElementById('userId').value;
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const nickName = document.getElementById('nickName').value.trim();
+            const deptId = document.getElementById('deptId').value;
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const status = parseInt(document.getElementById('status').value);
+
+            // 清除所有错误状态
+            clearValidationErrors();
+
+            // 验证
+            let hasError = false;
+            
+            if (!username) {
+                showFieldError('username', '请输入用户名');
+                hasError = true;
+            }
+            
+            if (!userId && !password) {
+                showFieldError('password', '请输入密码');
+                hasError = true;
+            }
+            
+            if (!nickName) {
+                showFieldError('nickName', '请输入昵称');
+                hasError = true;
+            }
+            
+            if (!deptId) {
+                showFieldError('deptTreeInput', '请选择部门');
+                hasError = true;
+            }
+
+            if (hasError) {
+                return;
+            }
+
+            // 获取选中的角色IDs
+            const roleIdsStr = document.getElementById('roleIds').value;
+            const roleIds = roleIdsStr ? roleIdsStr.split(',').map(id => parseInt(id)) : [];
+
+            const data = {
+                username,
+                nickName,
+                deptId: parseInt(deptId),
+                email,
+                phone,
+                status,
+                roleIds: roleIds
+            };
+
+            if (password) {
+                data.password = password;
+            }
+
+            let request;
+            if (userId) {
+                // 编辑
+                data.id = parseInt(userId);
+                request = axios.put('/api/user', data);
+            } else {
+                // 新增
+                request = axios.post('/api/user', data);
+            }
+
+            request.then(response => {
+                if (response.data.code === 200) {
+                    showToast(userId ? '修改成功' : '新增成功', 'success');
+                    closeModal();
+                    loadUserPage();
+                } else {
+                    showToast(response.data.msg || '操作失败', 'error');
+                }
+            }).catch(error => {
+                console.error('提交失败:', error);
+                showToast('网络错误', 'error');
+            });
+        }
+
+        // 显示字段错误
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.style.borderColor = '#FF3B30';
+                
+                // 添加错误提示文字
+                const formGroup = field.closest('.form-group');
+                if (formGroup && !formGroup.querySelector('.error-message')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error-message';
+                    errorDiv.style.cssText = `
+                        color: #FF3B30;
+                        font-size: 12px;
+                        margin-top: 4px;
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                    `;
+                    errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+                    formGroup.appendChild(errorDiv);
+                }
+                
+                // 自动聚焦到第一个错误字段
+                if (field.tagName === 'INPUT' || field.tagName === 'SELECT') {
+                    field.focus();
+                }
+            }
+        }
+
+        // 清除验证错误
+        function clearValidationErrors() {
+            // 清除所有字段的错误样式
+            document.querySelectorAll('#userForm .form-control').forEach(field => {
+                field.style.borderColor = '#d1d1d6';
+            });
+            
+            // 清除部门选择框的错误样式
+            const deptTreeInput = document.getElementById('deptTreeInput');
+            if (deptTreeInput) {
+                deptTreeInput.style.borderColor = '#d1d1d6';
+            }
+            
+            // 移除所有错误提示文字
+            document.querySelectorAll('#userForm .error-message').forEach(msg => {
+                msg.remove();
+            });
+        }
+
+        // 删除用户
+        function deleteUser(id) {
+            // 前端检查：不能删除admin用户
+            const user = userList.find(u => u.id === id);
+            if (user && user.username === 'admin') {
+                showToast('不允许删除admin用户', 'warning');
+                return;
+            }
+            
+            showConfirmDialog(
+                '删除确认',
+                '确定要删除这个用户吗？此操作不可恢复！',
+                function() {
+                    axios.delete(`/api/user/${id}`)
+                        .then(response => {
+                            if (response.data.code === 200) {
+                                showToast('删除成功', 'success');
+                                loadUserPage();
+                            } else {
+                                showToast(response.data.msg || '删除失败', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('删除失败:', error);
+                            showToast('删除失败', 'error');
+                        });
+                }
+            );
+        }
+
+        // 批量删除
+        function showBatchDeleteModal() {
+            if (selectedIds.length === 0) {
+                showToast('请选择要删除的用户', 'warning');
+                return;
+            }
+
+            // 过滤掉admin用户和超级管理员
+            const filteredIds = selectedIds.filter(id => {
+                const user = userList.find(u => u.id === id);
+                return user && user.username !== 'admin' && id !== 2;
+            });
+            
+            if (filteredIds.length === 0) {
+                showToast('没有可删除的用户', 'warning');
+                return;
+            }
+            
+            if (filteredIds.length < selectedIds.length) {
+                showToast(`已自动排除admin用户，将删除 ${filteredIds.length} 个用户`, 'warning');
+            }
+
+            showConfirmDialog(
+                '批量删除确认',
+                `确定要删除选中的 ${filteredIds.length} 个用户吗？此操作不可恢复！`,
+                function() {
+                    axios.delete('/api/user/batch', {
+                        data: { ids: filteredIds }
+                    })
+                    .then(response => {
+                        if (response.data.code === 200) {
+                            showToast('批量删除成功', 'success');
+                            loadUserPage();
+                        } else {
+                            showToast(response.data.msg || '批量删除失败', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('批量删除失败:', error);
+                        showToast('批量删除失败', 'error');
+                    });
+                }
+            );
+        }
+
+        // 显示Toast提示
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon = 'fa-check-circle';
+            if (type === 'error') icon = 'fa-times-circle';
+            if (type === 'warning') icon = 'fa-exclamation-circle';
+            
+            toast.innerHTML = `
+                <i class="fas ${icon} toast-icon"></i>
+                <span class="toast-message">${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.3s ease reverse';
+                setTimeout(() => {
+                    container.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // 显示确认对话框
+        function showConfirmDialog(title, message, onConfirm) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 100000;
+                backdrop-filter: blur(4px);
+            `;
+
+            overlay.innerHTML = `
+                <div style="
+                    background: #ffffff;
+                    border-radius: 16px;
+                    padding: 24px;
+                    max-width: 400px;
+                    width: 90%;
+                    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+                ">
+                    <div style="text-align: center; margin-bottom: 16px;">
+                        <div style="
+                            width: 64px;
+                            height: 64px;
+                            background: linear-gradient(135deg, #FF9500 0%, #FF3B30 100%);
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin: 0 auto 16px;
+                            font-size: 32px;
+                            color: #ffffff;
+                        ">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div style="font-size: 20px; font-weight: 600; color: #1d1d1f; margin-bottom: 8px;">${title}</div>
+                    </div>
+                    <div style="font-size: 15px; color: #86868b; text-align: center; margin-bottom: 24px; line-height: 1.6;">${message}</div>
+                    <div style="display: flex; gap: 12px;">
+                        <button id="confirmCancel" style="
+                            flex: 1;
+                            padding: 12px;
+                            border: 1px solid #d1d1d6;
+                            border-radius: 10px;
+                            font-size: 15px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            background: #ffffff;
+                            color: #1d1d1f;
+                            transition: all 0.2s ease;
+                        ">取消</button>
+                        <button id="confirmOk" style="
+                            flex: 1;
+                            padding: 12px;
+                            border: 1px solid #FF3B30;
+                            border-radius: 10px;
+                            font-size: 15px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            background: #ffffff;
+                            color: #FF3B30;
+                            transition: all 0.2s ease;
+                        ">确定</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+
+            // 取消按钮
+            document.getElementById('confirmCancel').onclick = function() {
+                document.body.removeChild(overlay);
+            };
+
+            // 确定按钮
+            document.getElementById('confirmOk').onclick = function() {
+                document.body.removeChild(overlay);
+                if (onConfirm) {
+                    onConfirm();
+                }
+            };
+
+            // 点击遮罩关闭
+            overlay.onclick = function(e) {
+                if (e.target === overlay) {
+                    document.body.removeChild(overlay);
+                }
+            };
+
+            // 添加按钮悬停效果
+            const cancelBtn = document.getElementById('confirmCancel');
+            const okBtn = document.getElementById('confirmOk');
+            
+            cancelBtn.onmouseenter = function() {
+                this.style.backgroundColor = '#f5f5f7';
+                this.style.borderColor = '#86868b';
+            };
+            cancelBtn.onmouseleave = function() {
+                this.style.backgroundColor = '#ffffff';
+                this.style.borderColor = '#d1d1d6';
+            };
+            
+            okBtn.onmouseenter = function() {
+                this.style.backgroundColor = '#ffe5e5';
+            };
+            okBtn.onmouseleave = function() {
+                this.style.backgroundColor = '#ffffff';
+            };
+        }
+
+        // 将需要被onclick调用的函数暴露到全局作用域
+        window.showEditModal = showEditModal;
+        window.viewUserRoles = viewUserRoles;
+        window.deleteUser = deleteUser;
+        window.showBatchDeleteModal = showBatchDeleteModal;
+        window.batchDeleteRoles = batchDeleteRoles;
+        window.toggleTreeNode = toggleTreeNode;
+    </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eutmp.app.mapper.MajorMapper">
+    
+    <resultMap id="BaseResultMap" type="com.eutmp.app.bean.Major">
+        <id column="id" property="id"/>
+        <result column="dept_id" property="deptId"/>
+        <result column="major_name" property="majorName"/>
+        <result column="major_code" property="majorCode"/>
+        <result column="edu_level" property="eduLevel"/>
+        <result column="study_year" property="studyYear"/>
+        <result column="sort" property="sort"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="college_name" property="collegeName"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        m.id, m.dept_id, m.major_name, m.major_code, m.edu_level, m.study_year, m.sort, m.status, m.create_time, m.update_time, d.dept_name as college_name
+    </sql>
+    
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM edu_major m LEFT JOIN sys_dept d ON m.dept_id = d.id WHERE m.id = #{id}
+    </select>
+    
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM edu_major m LEFT JOIN sys_dept d ON m.dept_id = d.id
+        <where>
+            <if test="majorName != null and majorName != ''">AND m.major_name LIKE CONCAT('%', #{majorName}, '%')</if>
+            <if test="deptId != null">AND m.dept_id = #{deptId}</if>
+            <if test="status != null">AND m.status = #{status}</if>
+        </where>
+        ORDER BY m.sort ASC, m.create_time DESC
+    </select>
+    
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO edu_major (dept_id, major_name, major_code, edu_level, study_year, sort, status, create_time, update_time)
+        VALUES (#{deptId}, #{majorName}, #{majorCode}, #{eduLevel}, #{studyYear}, #{sort}, #{status}, #{createTime}, #{updateTime})
+    </insert>
+    
+    <update id="update">
+        UPDATE edu_major
+        <set>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="majorName != null">major_name = #{majorName},</if>
+            <if test="majorCode != null">major_code = #{majorCode},</if>
+            <if test="eduLevel != null">edu_level = #{eduLevel},</if>
+            <if test="studyYear != null">study_year = #{studyYear},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="deleteById">DELETE FROM edu_major WHERE id = #{id}</delete>
+    
+    <delete id="deleteByIds">
+        DELETE FROM edu_major WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">#{id}</foreach>
+    </delete>
+    
+    <select id="checkMajorCodeUnique" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM edu_major m LEFT JOIN sys_dept d ON m.dept_id = d.id WHERE m.major_code = #{majorCode} LIMIT 1
+    </select>
+    
+</mapper>

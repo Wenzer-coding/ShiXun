@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程管理 - 高校实训管理平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+        .content-card {
+            background: #ffffff;
+            border-radius: 0;
+            padding: 32px;
+            box-shadow: none;
+            min-height: 100vh;
+        }
+        .card-header {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin: 0 0 4px 0;
+        }
+        .card-subtitle {
+            font-size: 14px;
+            color: #86868b;
+            margin: 0;
+        }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-input, .search-select {
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .search-input { min-width: 150px; }
+        .search-select { min-width: 150px; cursor: pointer; }
+        .search-input:focus, .search-select:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+        .btn-icon {
+            border: 1px solid #d1d1d6;
+            background: #ffffff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+            color: #007AFF;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-icon:hover {
+            background-color: #f5f5f7;
+            border-color: #007AFF;
+        }
+        .btn-icon-danger { color: #FF3B30; }
+        .btn-icon-danger:hover { background-color: #ffe5e5; }
+        .table-responsive { overflow-x: auto; }
+        .table th {
+            font-weight: 600;
+            color: #1d1d1f;
+            font-size: 14px;
+            border-bottom: 2px solid #e5e5e7;
+            padding: 12px 16px;
+        }
+        .table td {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #1d1d1f;
+            vertical-align: middle;
+        }
+        .checkbox-cell { width: 50px; }
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-enabled { background-color: #e6f7ed; color: #00A862; }
+        .status-disabled { background-color: #ffe5e5; color: #FF3B30; }
+        .btn-action {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            margin-right: 4px;
+        }
+        .btn-edit { color: #007AFF; }
+        .btn-edit:hover { background-color: #e8f0ff; }
+        .btn-delete { color: #FF3B30; }
+        .btn-delete:hover { background-color: #ffe5e5; }
+        .pagination { justify-content: flex-end; margin-top: 20px; }
+        .page-link {
+            border: none;
+            color: #007AFF;
+            padding: 8px 12px;
+            margin: 0 2px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .page-link:hover { background-color: #f5f5f7; }
+        .page-item.active .page-link {
+            background-color: #007AFF;
+            border-color: #007AFF;
+        }
+        .modal-header {
+            border-bottom: 1px solid #e5e5e7;
+            padding: 20px 24px;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+        .modal-body { padding: 24px; }
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+        .form-control, .form-select {
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+        .btn-primary {
+            background-color: #007AFF;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover { background-color: #0056CC; }
+        .btn-secondary {
+            background-color: #f5f5f7;
+            border: 1px solid #d1d1d6;
+            color: #1d1d1f;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover { background-color: #e5e5e7; }
+    </style>
+</head>
+<body>
+    <div class="content-card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-book" style="color: #007AFF; margin-right: 10px;"></i>
+                课程管理
+            </h3>
+            <p class="card-subtitle">管理课程信息和教学安排</p>
+        </div>
+
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <input type="text" class="search-input" id="searchCourseCode" placeholder="请输入课程编号">
+                <input type="text" class="search-input" id="searchCourseName" placeholder="请输入课程名称">
+                <input type="text" class="search-input" id="searchTeacher" placeholder="请输入授课教师">
+                <select class="search-select" id="searchCourseType">
+                    <option value="">课程类型</option>
+                    <option value="1">理论</option>
+                    <option value="2">实践</option>
+                    <option value="3">理实一体</option>
+                </select>
+                <select class="search-select" id="searchStatus">
+                    <option value="">状态</option>
+                    <option value="1">启用</option>
+                    <option value="0">停用</option>
+                </select>
+                <button class="btn-icon" onclick="searchData()">
+                    <i class="fas fa-search"></i> 搜索
+                </button>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn-icon btn-icon-primary" onclick="showAddModal()"><i class="fas fa-plus"></i> 新增课程</button>
+                <button class="btn-icon btn-icon-danger" id="batchDeleteBtn" onclick="batchDelete()" style="display:none;"><i class="fas fa-trash"></i> 批量删除</button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="checkbox-cell">
+                            <input type="checkbox" class="form-check-input" id="selectAll" onchange="toggleSelectAll()">
+                        </th>
+                        <th>课程编号</th>
+                        <th>课程名称</th>
+                        <th>学分</th>
+                        <th>课时</th>
+                        <th>授课教师</th>
+                        <th>课程类型</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+        <nav>
+            <ul class="pagination" id="pagination"></ul>
+        </nav>
+    </div>
+
+    <div class="modal fade" id="addModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">新增课程</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="courseForm">
+                        <input type="hidden" id="courseId">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="mb-3">
+                                <label class="form-label">课程编号 <span style="color: #FF3B30;">*</span></label>
+                                <input type="text" class="form-control" id="courseCode" required placeholder="请输入课程编号">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">课程名称 <span style="color: #FF3B30;">*</span></label>
+                                <input type="text" class="form-control" id="courseName" required placeholder="请输入课程名称">
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="mb-3">
+                                <label class="form-label">学分 <span style="color: #FF3B30;">*</span></label>
+                                <input type="number" class="form-control" id="credit" required placeholder="例如: 3.5" step="0.5" min="0.5" max="10">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">课时 <span style="color: #FF3B30;">*</span></label>
+                                <input type="number" class="form-control" id="hours" required placeholder="例如: 48" min="1">
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="mb-3">
+                                <label class="form-label">授课教师 <span style="color: #FF3B30;">*</span></label>
+                                <input type="text" class="form-control" id="teacher" required placeholder="请输入授课教师">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">课程类型 <span style="color: #FF3B30;">*</span></label>
+                                <select class="form-select" id="courseType" required>
+                                    <option value="">请选择</option>
+                                    <option value="1">理论</option>
+                                    <option value="2">实践</option>
+                                    <option value="3">理实一体</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="mb-3">
+                                <label class="form-label">状态</label>
+                                <select class="form-select" id="status">
+                                    <option value="1">启用</option>
+                                    <option value="0">停用</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn-primary" onclick="submitForm()">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script>
+        let currentPage = 1;
+        let pageSize = 10;
+        let selectedIds = [];
+
+        $(function() {
+            loadData();
+        });
+
+        function loadData() {
+            const params = {
+                pageNum: currentPage,
+                pageSize: pageSize,
+                courseCode: $('#searchCourseCode').val(),
+                courseName: $('#searchCourseName').val(),
+                teacher: $('#searchTeacher').val(),
+                courseType: $('#searchCourseType').val(),
+                status: $('#searchStatus').val()
+            };
+
+            $.get('/api/course/page', params, function(res) {
+                if (res.code === 200) {
+                    renderTable(res.data.list);
+                    renderPagination(res.data);
+                } else {
+                    alert('查询失败: ' + res.message);
+                }
+            });
+        }
+
+        function renderTable(data) {
+            let html = '';
+            if (data.length === 0) {
+                html = '<tr><td colspan="10" class="text-center text-muted">暂无数据</td></tr>';
+            } else {
+                data.forEach(item => {
+                    const courseTypeText = item.courseType === 1 ? '理论' : item.courseType === 2 ? '实践' : '理实一体';
+                    html += `
+                        <tr>
+                            <td class="checkbox-cell">
+                                <input type="checkbox" class="form-check-input" value="${item.id}" onchange="updateSelected()">
+                            </td>
+                            <td>${item.courseCode || '-'}</td>
+                            <td>${item.courseName || '-'}</td>
+                            <td>${item.credit || '-'}</td>
+                            <td>${item.hours || '-'}</td>
+                            <td>${item.teacher || '-'}</td>
+                            <td>${courseTypeText}</td>
+                            <td>
+                                <span class="status-badge ${item.status === 1 ? 'status-enabled' : 'status-disabled'}">
+                                    ${item.status === 1 ? '启用' : '停用'}
+                                </span>
+                            </td>
+                            <td>${formatDate(item.createTime)}</td>
+                            <td>
+                                <button class="btn-action btn-edit" onclick="showEditModal(${item.id})"><i class="fas fa-edit"></i> 编辑</button>
+                                <button class="btn-action btn-delete" onclick="deleteItem(${item.id})"><i class="fas fa-trash"></i> 删除</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            $('#tableBody').html(html);
+        }
+
+        function renderPagination(data) {
+            let html = '';
+            const totalPages = Math.ceil(data.total / data.pageSize);
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changePage(${currentPage - 1})">上一页</a></li>`;
+            for (let i = 1; i <= totalPages; i++) {
+                html += i === currentPage ? `<li class="page-item active"><a class="page-link" href="#">${i}</a></li>` : `<li class="page-item"><a class="page-link" href="#" onclick="changePage(${i})">${i}</a></li>`;
+            }
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changePage(${currentPage + 1})">下一页</a></li>`;
+            $('#pagination').html(html);
+        }
+
+        function changePage(page) {
+            if (page < 1) return;
+            currentPage = page;
+            loadData();
+        }
+
+        function searchData() {
+            currentPage = 1;
+            loadData();
+        }
+
+        function showAddModal() {
+            $('#modalTitle').text('新增课程');
+            $('#courseForm')[0].reset();
+            $('#courseId').val('');
+            $('#addModal').modal('show');
+        }
+
+        function showEditModal(id) {
+            $('#modalTitle').text('编辑课程');
+            $.get('/api/course/' + id, function(res) {
+                if (res.code === 200) {
+                    const data = res.data;
+                    $('#courseId').val(data.id);
+                    $('#courseCode').val(data.courseCode);
+                    $('#courseName').val(data.courseName);
+                    $('#credit').val(data.credit);
+                    $('#hours').val(data.hours);
+                    $('#teacher').val(data.teacher);
+                    $('#courseType').val(data.courseType);
+                    $('#status').val(data.status);
+                    $('#addModal').modal('show');
+                }
+            });
+        }
+
+        function submitForm() {
+            const id = $('#courseId').val();
+            const data = {
+                courseCode: $('#courseCode').val(),
+                courseName: $('#courseName').val(),
+                credit: parseFloat($('#credit').val()),
+                hours: parseInt($('#hours').val()),
+                teacher: $('#teacher').val(),
+                courseType: parseInt($('#courseType').val()),
+                status: parseInt($('#status').val())
+            };
+            const url = id ? '/api/course' : '/api/course';
+            const method = id ? 'PUT' : 'POST';
+            if (id) data.id = parseInt(id);
+
+            $.ajax({
+                url: url,
+                type: method,
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(res) {
+                    if (res.code === 200) {
+                        alert(res.message);
+                        $('#addModal').modal('hide');
+                        loadData();
+                    } else {
+                        alert('操作失败: ' + res.message);
+                    }
+                }
+            });
+        }
+
+        function deleteItem(id) {
+            if (!confirm('确定要删除该课程吗？')) return;
+            $.ajax({
+                url: '/api/course/' + id,
+                type: 'DELETE',
+                success: function(res) {
+                    if (res.code === 200) {
+                        alert(res.message);
+                        loadData();
+                    } else {
+                        alert('删除失败: ' + res.message);
+                    }
+                }
+            });
+        }
+
+        function toggleSelectAll() {
+            const selectAll = $('#selectAll').is(':checked');
+            $('#tableBody .form-check-input').prop('checked', selectAll);
+            updateSelected();
+        }
+
+        function updateSelected() {
+            selectedIds = [];
+            $('#tableBody .form-check-input:checked').each(function() {
+                selectedIds.push(parseInt($(this).val()));
+            });
+            document.getElementById('batchDeleteBtn').style.display = selectedIds.length > 0 ? 'inline-flex' : 'none';
+        }
+
+        function batchDelete() {
+            if (selectedIds.length === 0) {
+                alert('请选择要删除的课程');
+                return;
+            }
+            if (!confirm('确定要批量删除选中的课程吗？')) return;
+            $.ajax({
+                url: '/api/course/batch',
+                type: 'DELETE',
+                contentType: 'application/json',
+                data: JSON.stringify(selectedIds),
+                success: function(res) {
+                    if (res.code === 200) { $('#selectAll').prop('checked', false); alert(res.message); loadData(); }
+                    else { alert('批量删除失败: ' + res.message); }
+                }
+            });
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hour = String(date.getHours()).padStart(2, '0');
+            const minute = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hour}:${minute}`;
+        }
+    </script>
+</body>
+</html>

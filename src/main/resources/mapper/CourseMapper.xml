@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eutmp.app.mapper.CourseMapper">
+    
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.eutmp.app.bean.Course">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="course_code" property="courseCode" jdbcType="VARCHAR"/>
+        <result column="course_name" property="courseName" jdbcType="VARCHAR"/>
+        <result column="credit" property="credit" jdbcType="DOUBLE"/>
+        <result column="hours" property="hours" jdbcType="INTEGER"/>
+        <result column="teacher" property="teacher" jdbcType="VARCHAR"/>
+        <result column="course_type" property="courseType" jdbcType="TINYINT"/>
+        <result column="major_id" property="majorId" jdbcType="BIGINT"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, course_code, course_name, credit, hours, teacher, course_type, major_id, status, create_time, update_time
+    </sql>
+    
+    <!-- 根据ID查询课程 -->
+    <select id="selectCourseById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM course
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 条件查询课程列表 -->
+    <select id="selectCourseList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM course
+        <where>
+            <if test="courseCode != null and courseCode != ''">
+                AND course_code LIKE CONCAT('%', #{courseCode}, '%')
+            </if>
+            <if test="courseName != null and courseName != ''">
+                AND course_name LIKE CONCAT('%', #{courseName}, '%')
+            </if>
+            <if test="teacher != null and teacher != ''">
+                AND teacher LIKE CONCAT('%', #{teacher}, '%')
+            </if>
+            <if test="courseType != null">
+                AND course_type = #{courseType}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+    
+    <!-- 新增课程 -->
+    <insert id="insertCourse" parameterType="com.eutmp.app.bean.Course" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO course (
+            course_code, course_name, credit, hours, teacher, course_type, major_id, status, create_time, update_time
+        ) VALUES (
+            #{courseCode}, #{courseName}, #{credit}, #{hours}, #{teacher}, #{courseType}, #{majorId}, #{status}, #{createTime}, #{updateTime}
+        )
+    </insert>
+    
+    <!-- 修改课程 -->
+    <update id="updateCourse" parameterType="com.eutmp.app.bean.Course">
+        UPDATE course
+        <set>
+            <if test="courseCode != null">course_code = #{courseCode},</if>
+            <if test="courseName != null">course_name = #{courseName},</if>
+            <if test="credit != null">credit = #{credit},</if>
+            <if test="hours != null">hours = #{hours},</if>
+            <if test="teacher != null">teacher = #{teacher},</if>
+            <if test="courseType != null">course_type = #{courseType},</if>
+            <if test="majorId != null">major_id = #{majorId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 删除课程 -->
+    <delete id="deleteCourseById">
+        DELETE FROM course WHERE id = #{id}
+    </delete>
+    
+    <!-- 批量删除课程 -->
+    <delete id="deleteCourseByIds">
+        DELETE FROM course WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <!-- 校验课程编号是否唯一 -->
+    <select id="checkCourseCodeUnique" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM course
+        WHERE course_code = #{courseCode}
+        LIMIT 1
+    </select>
+    
+</mapper>
