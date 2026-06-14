@@ -23,13 +23,13 @@ public class TrainScore implements Serializable {
     /** 学生ID */
     private Long stuId;
 
-    /** 平时成绩(满分50) */
+    /** 平时成绩(满分100, 权重50%) */
     private BigDecimal usualScore;
 
-    /** 实训报告成绩(满分30) */
+    /** 实训报告成绩(满分100, 权重30%) */
     private BigDecimal reportScore;
 
-    /** 答辩考核成绩(满分20) */
+    /** 答辩考核成绩(满分100, 权重20%) */
     private BigDecimal defenseScore;
 
     /** 综合总分 */

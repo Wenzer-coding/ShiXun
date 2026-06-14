@@ -82,9 +82,9 @@
                         <th>开班名称</th>
                         <th>学生姓名</th>
                         <th>学号</th>
-                        <th>平时成绩(50)</th>
-                        <th>报告成绩(30)</th>
-                        <th>答辩成绩(20)</th>
+                        <th>平时成绩(50%)</th>
+                        <th>报告成绩(30%)</th>
+                        <th>答辩成绩(20%)</th>
                         <th>总分</th>
                         <th>等级</th>
                         <th>操作</th>
@@ -111,21 +111,23 @@
                             <select class="form-select" id="planId" required></select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">学生ID <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="stuId" required>
+                            <label class="form-label">选择学生 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="stuId" required>
+                                <option value="">请先选择实训开班</option>
+                            </select>
                         </div>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">平时成绩(50) <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="usualScore" step="0.1" min="0" max="50" required>
+                                <label class="form-label">平时成绩(50%) (满分100) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="usualScore" step="0.1" min="0" max="100" required>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">报告成绩(30) <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="reportScore" step="0.1" min="0" max="30" required>
+                                <label class="form-label">报告成绩(30%) (满分100) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="reportScore" step="0.1" min="0" max="100" required>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">答辩成绩(20) <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="defenseScore" step="0.1" min="0" max="20" required>
+                                <label class="form-label">答辩成绩(20%) (满分100) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="defenseScore" step="0.1" min="0" max="100" required>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -150,9 +152,33 @@
         function loadPlans() {
             axios.get('/api/plan/all').then(res => {
                 if (res.data.code === 200) {
-                    const options = res.data.data.map(p => `<option value="${p.id}">${p.planName}</option>`).join('');
-                    document.getElementById('planSelect').innerHTML = '<option value="">全部开班</option>' + options;
-                    document.getElementById('planId').innerHTML = options;
+                    const allPlans = res.data.data || [];
+                    const selOptions = allPlans.map(p => `<option value="${p.id}">${p.planName}</option>`).join('');
+                    document.getElementById('planSelect').innerHTML = '<option value="">全部开班</option>' + selOptions;
+                    document.getElementById('planId').innerHTML = '<option value="">请选择实训开班</option>' + selOptions;
+                }
+            });
+        }
+        // 监听开班选择变化，加载已审核通过的学生
+        document.getElementById('planId').addEventListener('change', function() {
+            loadStudentsByPlan(this.value);
+        });
+        function loadStudentsByPlan(planId, selectedStuId) {
+            const stuSelect = document.getElementById('stuId');
+            if (!planId) {
+                stuSelect.innerHTML = '<option value="">请先选择实训开班</option>';
+                return;
+            }
+            axios.get('/api/enroll/list', { params: { pageNum: 1, pageSize: 999, planId, auditStatus: 2 } }).then(res => {
+                if (res.data.code === 200) {
+                    const list = res.data.data.list || [];
+                    if (list.length === 0) {
+                        stuSelect.innerHTML = '<option value="">该开班暂无已审核通过的学生</option>';
+                    } else {
+                        stuSelect.innerHTML = list.map(s =>
+                            `<option value="${s.stuId}" ${selectedStuId && s.stuId == selectedStuId ? 'selected' : ''}>${s.studentNo} - ${s.studentName}</option>`
+                        ).join('');
+                    }
                 }
             });
         }
@@ -180,7 +206,7 @@
         function changePage(page) { if (page < 1) return; currentPage = page; loadData(); }
         function searchData() { currentPage = 1; loadData(); }
         function resetSearch() { document.getElementById('planSelect').value = ''; document.getElementById('gradeSelect').value = ''; currentPage = 1; loadData(); }
-        function showAddModal() { document.getElementById('modalTitle').textContent = '录入实训成绩'; document.getElementById('scoreForm').reset(); document.getElementById('scoreId').value = ''; new bootstrap.Modal(document.getElementById('scoreModal')).show(); }
+        function showAddModal() { document.getElementById('modalTitle').textContent = '录入实训成绩'; document.getElementById('scoreForm').reset(); document.getElementById('scoreId').value = ''; document.getElementById('stuId').innerHTML = '<option value="">请先选择实训开班</option>'; new bootstrap.Modal(document.getElementById('scoreModal')).show(); }
         function showEditModal(id) {
             axios.get(`/api/trainScore/${id}`).then(res => {
                 if (res.data.code === 200) {
@@ -188,7 +214,7 @@
                     document.getElementById('modalTitle').textContent = '编辑实训成绩';
                     document.getElementById('scoreId').value = data.id;
                     document.getElementById('planId').value = data.planId;
-                    document.getElementById('stuId').value = data.stuId;
+                    loadStudentsByPlan(data.planId, data.stuId);
                     document.getElementById('usualScore').value = data.usualScore || 0;
                     document.getElementById('reportScore').value = data.reportScore || 0;
                     document.getElementById('defenseScore').value = data.defenseScore || 0;

@@ -38,6 +38,7 @@ public class SaTokenConfig implements WebMvcConfigurer {
                     requestURI.equals("/forgot-password") ||
                     requestURI.startsWith("/api/auth/") ||
                     requestURI.equals("/api/attendance/signin") ||
+                    requestURI.startsWith("/api/ai/") ||
                     requestURI.startsWith("/druid/") ||
                     requestURI.equals("/druid") ||
                     requestURI.equals("/attendance/signin") ||

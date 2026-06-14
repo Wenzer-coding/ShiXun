@@ -49,11 +49,12 @@ public class TrainScoreServiceImpl implements TrainScoreService {
         } catch (Exception e) {
             log.warn("获取当前登录用户失败", e);
         }
-        // 计算总分
+        // 计算总分: 平时×50% + 报告×30% + 答辩×20%
         if (trainScore.getUsualScore() != null && trainScore.getReportScore() != null && trainScore.getDefenseScore() != null) {
             BigDecimal total = trainScore.getUsualScore()
-                .add(trainScore.getReportScore())
-                .add(trainScore.getDefenseScore());
+                .multiply(new BigDecimal("0.5"))
+                .add(trainScore.getReportScore().multiply(new BigDecimal("0.3")))
+                .add(trainScore.getDefenseScore().multiply(new BigDecimal("0.2")));
             trainScore.setTotalScore(total);
             
             // 自动计算等级
@@ -78,11 +79,12 @@ public class TrainScoreServiceImpl implements TrainScoreService {
     
     @Override
     public int update(TrainScore trainScore) {
-        // 重新计算总分
+        // 重新计算总分: 平时×50% + 报告×30% + 答辩×20%
         if (trainScore.getUsualScore() != null && trainScore.getReportScore() != null && trainScore.getDefenseScore() != null) {
             BigDecimal total = trainScore.getUsualScore()
-                .add(trainScore.getReportScore())
-                .add(trainScore.getDefenseScore());
+                .multiply(new BigDecimal("0.5"))
+                .add(trainScore.getReportScore().multiply(new BigDecimal("0.3")))
+                .add(trainScore.getDefenseScore().multiply(new BigDecimal("0.2")));
             trainScore.setTotalScore(total);
             
             // 重新计算等级
